@@ -25,8 +25,7 @@ class SplashContent extends StatelessWidget {
               ),
             ),
             height: getProportionateScreenHeight(
-                MediaQuery.of(context).size.height -
-                    77), // Altura de la pantalla
+                MediaQuery.of(context).size.height * 0.902), // Altura de la pantalla
             width: getProportionateScreenHeight(
                 MediaQuery.of(context).size.width), // Ancho de la pantalla
 

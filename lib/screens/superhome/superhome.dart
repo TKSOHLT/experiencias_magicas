@@ -32,7 +32,7 @@ class _SuperHomeScreenState extends State<SuperHomeScreen> {
       extendBody: true,
       body: Column(
         children: [
-          Container(
+          _currentIndex != 4 ? Container(
             constraints: BoxConstraints(
                 maxHeight: SizeConfig.screenHeight,
                 maxWidth: SizeConfig.screenWidth),
@@ -42,10 +42,10 @@ class _SuperHomeScreenState extends State<SuperHomeScreen> {
             ),
             child: Padding(padding: EdgeInsets.only(top: getProportionateScreenHeight(35)), child: HomeHeader(_scaffoldKey),)
             
-          ),
+          ) : Container(),
           Container(
             constraints: BoxConstraints(
-                maxHeight: SizeConfig.screenHeight * 0.9,
+                maxHeight: _currentIndex == 4 ? SizeConfig.screenHeight : SizeConfig.screenHeight * 0.9,
                 maxWidth: SizeConfig.screenWidth),
             // height: getProportionateScreenHeight(1000),
             decoration: const BoxDecoration(
@@ -53,12 +53,12 @@ class _SuperHomeScreenState extends State<SuperHomeScreen> {
             ),
             child: IndexedStack(
               index: _currentIndex,
-              children: const <Widget>[
+              children: <Widget>[
                 // Añade las vistas que deseas mostrar aquí
-                BuyScreen(),
-                GalleryScreen(),
-                HomeScreen(),
-                ChatScreen(),
+                const BuyScreen(),
+                const GalleryScreen(),
+                const HomeScreen(),
+                const ChatScreen(),
                 ProfileScreen(),
                 // Agrega más vistas si es necesario
               ],
