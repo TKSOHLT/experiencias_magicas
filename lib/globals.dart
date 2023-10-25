@@ -1,0 +1,1 @@
+int lblTotalNotifications = 0;

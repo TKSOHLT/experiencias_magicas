@@ -2,16 +2,19 @@ import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-const kPrimaryColor = Color.fromARGB(255, 247, 134, 93);
+const kPrimaryColor = Color.fromARGB(255, 81, 196, 165);
 const kPrimaryLightColor = Color(0xFFFFECDF);
+
 const kPrimaryGradientColor = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
   colors: [
-    Color.fromARGB(255, 255, 188, 112),
-    Color.fromARGB(255, 221, 115, 77)
+    Color.fromARGB(255, 81, 196, 165), // Color más claro
+    Color.fromARGB(255, 81, 196, 165), // Color intermedio
+    Color.fromARGB(255, 81, 196, 165), // Color intermedio
   ],
 );
+
 const kPrimaryGradientColorRed = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
