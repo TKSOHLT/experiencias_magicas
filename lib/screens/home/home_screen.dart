@@ -1,5 +1,6 @@
 import 'package:experiencias_magicas/constants.dart';
 import 'package:experiencias_magicas/screens/home/components/body.dart';
+import 'package:experiencias_magicas/screens/paquetes/paquetes_screen.dart';
 import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/material.dart';
 
@@ -36,31 +37,31 @@ class _HomeScreenState extends State<HomeScreen> {
         floatingActionButton: Padding(
             padding: EdgeInsets.only(bottom: getProportionateScreenWidth(70)),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                SizedBox(
-                  width: getProportionateScreenWidth(0),
-                ),
+                // SizedBox(
+                //   width: getProportionateScreenWidth(0),
+                // ),
                 FloatingActionButton.extended(
                   backgroundColor: Colors.green,
                   onPressed: () {
-                    // Add your onPressed code here!
+                    _createOnPressed(context, PaquetesScreen(idCompra: "", montoAut: "100", status: "status", idPersonaAut: "idPersonaAut"));
                   },
                   label: const Text('Paquete'),
                   icon: const Icon(Icons.add),
                 ),
-                SizedBox(
-                  width: getProportionateScreenWidth(59),
-                ),
-                FloatingActionButton.extended(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.grey,
-                  onPressed: () {
-                    // Add your onPressed code here!
-                  },
-                  label: const Text('Itinerario'),
-                  icon: const Icon(Icons.add),
-                ),
+                // SizedBox(
+                //   width: getProportionateScreenWidth(59),
+                // ),
+                // FloatingActionButton.extended(
+                //   backgroundColor: Colors.white,
+                //   foregroundColor: Colors.grey,
+                //   onPressed: () {
+                //     // Add your onPressed code here!
+                //   },
+                //   label: const Text('Itinerario'),
+                //   icon: const Icon(Icons.add),
+                // ),
               ],
             )));
   }

@@ -181,6 +181,7 @@ class _DatePickerState extends State<DatePicker> {
       }) {
         return Center(
           child: Container(
+            // constraints: BoxConstraints(maxHeight: 10),
             decoration: decoration,
             height: 36,
             width: 72,
@@ -213,15 +214,16 @@ class _DatePickerState extends State<DatePicker> {
       },
     );
     return Padding(
-        padding: const EdgeInsets.all(0),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: Color.fromARGB(214, 255, 255, 255),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16.0),
+        padding: const EdgeInsets.only(top: 0),
+        child: Container(
+          constraints: BoxConstraints(maxHeight: 30, minWidth: 200),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Color.fromARGB(214, 255, 255, 255),
+              borderRadius: BorderRadius.circular(15),
+            ),
             child: CupertinoButton(
+                padding: EdgeInsets.all(0),
                 onPressed: () async {
                   final values = await showCalendarDatePicker2Dialog(
                     context: context,
@@ -242,10 +244,14 @@ class _DatePickerState extends State<DatePicker> {
                     });
                   }
                 },
-                child: const SizedBox(
-                  width: 100,
-                  height: 30,
-                  child: Text('Fecha'),
+                child: Padding(
+                  padding: EdgeInsets.only(top: 0, left: 0),
+                  // width: 200,
+                  // height: 0,
+                  child: Text(
+                    'Fecha',
+                    style: TextStyle(fontSize: 20),
+                  ),
                 )),
           ),
         ));
