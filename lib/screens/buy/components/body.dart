@@ -5,9 +5,10 @@
 import 'dart:async';
 
 import 'package:experiencias_magicas/constants.dart';
+import 'package:experiencias_magicas/controller/controller_principal.dart';
+import 'package:experiencias_magicas/globals.dart';
 import 'package:experiencias_magicas/screens/buy/components/header.dart';
 import 'package:experiencias_magicas/screens/buy/components/paquetes.dart';
-import 'package:experiencias_magicas/screens/home/components/home_header.dart';
 import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/material.dart';
 
@@ -22,27 +23,39 @@ class Body extends StatefulWidget {
 
 class _BodyState extends State<Body> {
 //variables para almacenar los valores desde la API
-  String lblTitle = "";
-  String? producto;
-  String? estado;
-  String? idCompra;
-  bool isLoading = true;
-  List<Widget> widgetCardActivity = [];
+  List<Paquetes> widgetPaquetes = [];
 
-  final List<String?> errors = [];
-
-//Carga de datos de usuario mandadero desde controlador
+//Carga de datos
   @override
   void initState() {
     super.initState();
     //Reload cada dos minutos
-    reload();
+    cargarTablas();
   }
 
-  void reload() {
-    Timer(const Duration(seconds: 120), () {
-      reload();
-    });
+  Future<void> cargarTablas() async {
+    widgetPaquetes = [];
+
+    parametros = {"opcion": "3.2"};
+
+    var respuesta = await peticiones(parametros);
+
+    if (respuesta != "err_internet_conex") {
+      setState(() {
+        if (respuesta == 'empty') {
+          widgetPaquetes = [];
+          // isLoading = false;
+        } else {
+          for (int i = 0; i < respuesta.length; i++) {
+            widgetPaquetes.add(
+              Paquetes(dias: respuesta[i]['days'], plus: respuesta[i]['plus'], 
+              costo: respuesta[i]['cost'], titulo: respuesta[i]['id_package'])
+            );
+          }
+          // isLoading = false;
+        }
+      });
+    } else {}
   }
 
   @override
@@ -75,15 +88,16 @@ class _BodyState extends State<Body> {
                     textAlign: TextAlign.center,
                   ),
 
-                  const Paquetes(),
-                  const Paquetes(),
-                  const Paquetes(),
+                  // const Paquetes(),
+                  Column(
+                    children: widgetPaquetes,
+                  ),
 
                   SizedBox(height: getProportionateScreenHeight(10)),
                   // const Column(
                   //   children: [DayScreen()],
                   // ),
-                  
+
                   SizedBox(height: getProportionateScreenHeight(10)),
                 ],
               ),
