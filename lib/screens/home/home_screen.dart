@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () {
                     _createOnPressed(context, PaquetesScreen(idCompra: "", montoAut: "100", status: "status", idPersonaAut: "idPersonaAut"));
                   },
-                  label: const Text('Paquete'),
+                  label: const Text('Evento'),
                   icon: const Icon(Icons.add),
                 ),
                 // SizedBox(

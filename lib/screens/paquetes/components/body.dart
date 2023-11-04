@@ -62,12 +62,12 @@ void _createOnPressed(BuildContext context, StatelessWidget route) {
                   //Espacio entre fecha y texto
                   SizedBox(width: getProportionateScreenHeight(32)),
                   Row(children: [
-                    Text("Generar paquete", style: headingStyleTwo),
+                    Text("Generar evento", style: headingStyleTwo),
                   ]),
                 ],
               ),
               SizedBox(height: SizeConfig.screenHeight * 0.03),
-              PaquetesForm(idCompra: idCompra, costo: montoAut, idPersonaAut: idPersonaAut,),
+              PaquetesForm(),
               SizedBox(height: SizeConfig.screenHeight * 0.08),
             ],
           ),

@@ -433,7 +433,9 @@ class _GalleryAddState extends State<GalleryAdd> {
           SizedBox(
             height: getProportionateScreenHeight(35),
             width: getProportionateScreenWidth(190),
-            child: DatePicker()
+            child: DatePicker( onDateChanged: (p0) {
+              
+            },)
             // child: Align(
             //     alignment: Alignment.center, // Centra el contenido
             //     child: DropdownButtonFormField<String>(

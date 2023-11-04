@@ -1,30 +1,34 @@
-import 'package:experiencias_magicas/screens/paquetes/components/actividades.dart';
+import 'package:experiencias_magicas/screens/paquetes/components/paquetes_form.dart';
 import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/material.dart';
 
 class Dias extends StatefulWidget {
-  const Dias();
+  const Dias({required this.noDia});
+  final String noDia;
 
   @override
   _DiasState createState() => _DiasState();
 }
 
 class _DiasState extends State<Dias> {
+  bool isChecked = false;
+
   Widget build(BuildContext context) {
     return Form(
       child: Column(
         children: [
-          Text("Dia 1  Actividades"),
-          lugarTextField(),
 
-          Actividades(),
+          widgetDia(),
 
-          SizedBox(height: getProportionateScreenHeight(10),)
+          SizedBox(
+            height: getProportionateScreenHeight(10),
+          )
         ],
       ),
     );
   }
-  Padding lugarTextField() {
+
+  Padding widgetDia() {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Row(
@@ -32,42 +36,40 @@ class _DiasState extends State<Dias> {
         children: <Widget>[
           Column(
             children: <Widget>[
-              Text("Lugar: "),
+              Text("Día ${widget.noDia}"),
             ],
           ),
           SizedBox(
-            height: getProportionateScreenHeight(35),
-            width: getProportionateScreenWidth(120),
-            child: TextFormField(
-              // controller: importeUtiController,
-              decoration: InputDecoration(
-                hintText: "Lugar",
-                contentPadding: const EdgeInsets.only(left: 10, right: 10),
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(100.0)),
-                ),
-              ),
-              onChanged: (newValue) {
-                // isImportUti = true;
-              },
-              validator: (newValue) {
-                if (newValue!.isEmpty) {
-                  return;
-                }
-                return null;
-              },
-              // onSaved: (newValue) => asientos = newValue,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              // inputFormatters: <TextInputFormatter>[
-              //   FilteringTextInputFormatter.allow(
-              //       RegExp('[0-9.([0-9)?]')), // Limita a dígitos solamente
-              // ],
-            ),
-          )
+              height: getProportionateScreenHeight(35),
+              width: getProportionateScreenWidth(120),
+              child: Checkbox(
+                checkColor: Colors.white,
+                fillColor: MaterialStateProperty.resolveWith(getColor),
+                value: isChecked,
+                onChanged: (bool? value) {
+                  setState(() {
+                    isChecked = value!;
+                    value ? dias?.add(widget.noDia) : dias?.remove(widget.noDia);
+                    print(value);
+                    print(dias);
+
+                  });
+                },
+              ))
         ],
       ),
     );
   }
 
+  Color getColor(Set<MaterialState> states) {
+    const Set<MaterialState> interactiveStates = <MaterialState>{
+      MaterialState.pressed,
+      MaterialState.hovered,
+      MaterialState.focused,
+    };
+    if (states.any(interactiveStates.contains)) {
+      return Colors.red;
+    }
+    return Colors.blue;
+  }
 }

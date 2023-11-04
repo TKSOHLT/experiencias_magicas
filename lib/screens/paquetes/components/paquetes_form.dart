@@ -2,258 +2,53 @@ import 'dart:io';
 
 import 'package:experiencias_magicas/components/custom_button.dart';
 import 'package:experiencias_magicas/components/datepicker.dart';
+import 'package:experiencias_magicas/components/form_error.dart';
 import 'package:experiencias_magicas/constants.dart';
+import 'package:experiencias_magicas/controller/controller_principal.dart';
+import 'package:experiencias_magicas/globals.dart';
 import 'package:experiencias_magicas/screens/paquetes/components/dias.dart';
+import 'package:experiencias_magicas/screens/paquetes/components/plus.dart';
 import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
-class PaquetesForm extends StatefulWidget {
-  const PaquetesForm(
-      {super.key,
-      required this.idCompra,
-      required this.costo,
-      required this.idPersonaAut});
-  //Parametros que se comparten desde la vista anterior
-  final String idCompra;
-  final String costo;
-  final String idPersonaAut;
+//variable global para modificar datos de plus de paquete
+List<String>? plus = [];
+List<String>? dias = [];
 
+class PaquetesForm extends StatefulWidget {
+  const PaquetesForm({super.key});
+  //Parametros que se comparten desde la vista anterior
   @override
-  _PaquetesFormState createState() =>
-      _PaquetesFormState(idCompra, costo, idPersonaAut);
+  _PaquetesFormState createState() => _PaquetesFormState();
 }
 
 class _PaquetesFormState extends State<PaquetesForm> {
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      GlobalKey<RefreshIndicatorState>();
-
   final _formKey = GlobalKey<FormState>();
+
   final List<String?> errors = [];
-//Constructor para el uso de los datps compartidoa entre vistas
-  _PaquetesFormState(this.idCompra, this.costo, this.idPersonaAut);
-  final String idCompra;
-  final String costo;
-  final String idPersonaAut;
-  //==================================CALCULO DEL MONTO SOBRANTE======================================
-//variables booleanas para el manejo del estado de reporte y carga de imagen
-  bool stateReporte = false;
-  bool isVisibleWidget = false;
-  bool isShowImage = false;
-  bool recargarImagenes = false;
-  //bool imagenCargada = false;
-  bool arrayImagenes = false;
-  bool isPersRecibio = false;
-  bool isImportUti = false;
-  bool arrayImagenesCamera = false;
-  File? _image;
 
-  File? originalImage;
-  File? compressedImage;
-  String compressedImagePath = "/storage/emulated/0/Download/";
-  String? nombreImage;
-  //Variable local para almacenar el id_usuario admin a quien será enviado una notificación
-  String? id_usuario_admin;
-
-  // List<Usuario> admins = [];
-
-  //almacena path imagenes de galeria en String
-  List<String> imagesPath = [];
-  //Almacena el objeto File de la imagen de galeria
-  List<File> files = [];
-
-  //almacena path imagenes de camara en String
-  //List<String> imagesPathCamera = [];
-  //Almacena el objeto File de la imagen de camara
-  //List<File> filesCamera = [];
-
-  //variables locales que almacenan lo que el usuario ingrese
-  String? folio;
-  String? asientos;
-  String? importeSob;
-
-  String? personaRecibe;
-  String? statusReporte;
-  String? descripReport;
-  String? nombreImagen;
-  //variables que almacenan el resultado de la seleccion de la imagen
-  String? imageURL;
-  String? foto;
-  String? idCompraImg;
-  //============================VARIABLES DEL CALCULO DEL MONTO SOBRANTE================================
-//Instancias para el calculo del monto sobrante
+  //====================Controladores de texto====================//
+  TextEditingController fechasController = TextEditingController();
   TextEditingController costoController = TextEditingController();
-  TextEditingController importeUtiController = TextEditingController();
-  TextEditingController importeSobController = TextEditingController();
-  TextEditingController resultController = TextEditingController();
+  TextEditingController luagresController = TextEditingController();
+  TextEditingController diasController = TextEditingController();
 
+  //Variables para almacenar los valores
+  String? fechas;
+  String? costo;
+  String? lugares;
+
+  //WidgetList plus
+  List<Widget> widgetPlus = [];
   //listener para escuchar el cambio en los campos de entrada de montos
   @override
   void initState() {
     super.initState();
 
-    costoController.addListener(calculateResult);
-    importeUtiController.addListener(calculateResult);
-  }
-
-  Future<void> selectImages() async {
-    // final picker = ImagePicker();
-    // final pickedImages = await picker.pickMultiImage();
-    // if (pickedImages != null) {
-    //   setState(() {
-    //     imagesPath = pickedImages.map((image) => image.path).toList();
-    //     isShowImage = true;
-    //     idCompraImg = idCompra;
-    //   });
-
-    //     for(XFile img in pickedImages){
-    //       File file = File(img.path);
-    //       //ontener nombre de la imagen seleccionada para asignarla a la ruta de imagen comprimida
-    //         nombreImage = file.path.split('/').last;
-    //       //comprimiendo imagenes de galeria
-    //       final compressedFile = await FlutterImageCompress.compressAndGetFile(
-    //         file.path,
-    //         "$compressedImagePath/$nombreImage.jpg",
-    //         quality: 20,
-    //       );
-
-    //       if (compressedFile != null) {
-    //         setState(() {
-    //           File file = File(compressedFile.path);
-    //           //agregando imagenes comprimidas al arreglo para mostrar en vista
-    //             files.add(file);
-    //             print('Agregando imagenes comprimidas a lista FILES: $files');
-
-    //           //agregando imagenes de camara a imagesPath
-    //             if (files.isNotEmpty) {
-    //               for (File imgFile in files) {
-    //                 imagesPath.add(imgFile.path);
-    //                 arrayImagenes = true;
-    //                 print('imagesPath camara: $imagesPath');
-    //               }
-
-    //             }
-
-    //             });
-
-    //             print('Tamaño imagen original $nombreImage');
-    //             print(await file.length());
-    //             print('Tamaño imagen comprimida $nombreImage');
-    //             print(await compressedFile.length());
-    //       }
-
-    //     }
-
-    // }
-    // //Convierte el path String en Objetos File
-
-    // // for (String path in imagesPath) {
-    // //   File file = File(path);
-    // //   files.add(file);
-    // // }
-
-    // if (files != null) {
-    //   arrayImagenes = true;
-    // }
-  }
-
-  Future<void> takeImages() async {
-    // final imagePicker = ImagePicker();
-    // final pickedImage = await imagePicker.pickImage(source: ImageSource.camera);
-    // setState(() async {
-    //   if (pickedImage != null) {
-    //     isShowImage = true;
-    //     idCompraImg = idCompra;
-    //     //_image contiene la iomagen tomada de camara
-    //     _image = File(pickedImage.path);
-    //     //ontener nombre de la imagen seleccionada para asignarla a la ruta de imagen comprimida
-    //     nombreImage = pickedImage.path.split('/').last;
-
-    //     //comprimiendo imagen de camara
-    //       final compressedFile = await FlutterImageCompress.compressAndGetFile(
-    //         pickedImage.path,
-    //         "$compressedImagePath/$nombreImage.jpg",
-    //         quality: 20,
-    //       );
-    //     //comprimir imagen
-    //     print('Comprimiendo imagen camara');
-    //     if (compressedFile != null) {
-    //         setState(() {
-    //           File file = File(compressedFile.path);
-    //           //agregando imagenes comprimidas al arreglo para mostrar en vista
-    //             files.add(file);
-    //             print('Agregando imagenes comprimidas a lista FILES: $files');
-    //             });
-    //             print('Tamaño imagen original camara $nombreImage');
-    //             print(await pickedImage.length());
-    //             print('Tamaño imagen comprimida camara $nombreImage');
-    //             print(await compressedFile.length());
-    //     }
-    //     //cargar arreglo de imagenes tipo String para cargar en API
-    //     if (files.isNotEmpty) {
-    //       for (File imgFile in files) {
-    //         imagesPath.add(imgFile.path);
-    //         arrayImagenes = true;
-    //       }
-
-    //     }
-    //   }
-    // });
-  }
-
-  Future<void> compressImageS(File originalImage) async {
-    // final compressedFile = await FlutterImageCompress.compressAndGetFile(
-    //   originalImage.path,
-    //   "$compressedImagePath/file1.jpg",
-    //   quality: 10,
-    // );
-
-    // if (compressedFile != null) {
-    //   setState(() {
-    //     File file = File(compressedFile.path);
-    //     //SE ALMACENA LA IMAGEN COMPRIMIDA EN COMPRESSIMAGE
-    //     //compressedImage = file;
-
-    //     //agregando imagenes comprimidas al arreglo para mostrar en vista
-    //       //files.add(file);
-
-    //   });
-
-    //   print('Tamaño imagen original');
-    //   print(await originalImage.length());
-    //   print('Tamaño imagen comprimida');
-    //   print(await compressedFile.length());
-
-    // }
-  }
-
-  //Funcion que convierte un path string a path file
-  ////File imageFile = await convertPathToFile(imagePath);
-  Future<File> convertPathToFile(String imagePath) async {
-    return File(imagePath);
-  }
-
-  //Funcion que recibe un array de paths String y devuelve un array de Objetos Files
-  //List<File> files = convertPathsToFiles(paths);
-  List<File> convertPathsToFiles(List<String> paths) {
-    List<File> files = [];
-
-    for (String path in paths) {
-      File file = File(path);
-      files.add(file);
-    }
-    return files;
-  }
-
-  void calculateResult() {
-    //Asignamos el valor dem monto autorizado que se comparte desde la vista anterior a esta
-    double costoCont = double.tryParse(costo) ?? 0;
-    double importeUtiCont = double.tryParse(importeUtiController.text) ?? 0;
-    double result = costoCont - importeUtiCont;
-    // Actualiza el valor del campo de resultado en tiempo real
-    resultController.text = result.toStringAsFixed(1);
-    asientos = importeUtiCont.toString();
+    //Eliminar==================================
+    widgetPlus.add(Plus());
   }
 
   //==================================Funciones de Ruta en vistas======================================
@@ -273,8 +68,10 @@ class _PaquetesFormState extends State<PaquetesForm> {
   void dispose() {
     // Limpia los controladores al finalizar
     costoController.dispose();
-    importeUtiController.dispose();
-    resultController.dispose();
+    fechasController.dispose();
+    luagresController.dispose();
+    diasController.dispose();
+
     super.dispose();
   }
 
@@ -331,52 +128,32 @@ class _PaquetesFormState extends State<PaquetesForm> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  folioCompra(idCompra),
+                  folioCompra(),
                   fechaInicio(),
-                  costoPaquete(costo),
-                  asientosPaquete(asientos),
-
-                  Dias(),
-                  
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   children: [
-                  //     iconAddImageBuy(context)
-                  //   ],
-                  // ),
-                  Visibility(visible: isVisibleWidget, child: obsReporte()),
-                  SizedBox(height: getProportionateScreenHeight(14)),
-                  RefreshIndicator(
-                    key: _refreshIndicatorKey,
-                    onRefresh: () async {
-                      return Future<void>.delayed(const Duration(seconds: 3));
-                    },
-                    child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            ...List.generate(files.length, (index) {
-                              //print('ruta de imagen en card: ${imagesPath[index]}');
-                              return recargarImagenes == true
-                                  ? cardImage(index)
-                                  : cardImage(index);
-                            })
-                          ],
-                        )),
+                  costoPaquete(),
+                  asientosPaquete(),
+                  Text("Contiene"),
+                  Dias(
+                    noDia: '1',
                   ),
-                  SizedBox(height: getProportionateScreenHeight(10)),
+                  Column(
+                    children: widgetPlus,
+                  ),
+                  DividerLine(190, true),
+                  SizedBox(height: getProportionateScreenHeight(14)),
+                  FormError(errors: errors),
                 ],
               ),
             ),
           ),
-          button(context, isShowImage),
+          button(context),
         ],
       ),
     );
   }
 
 //=================================================FUNCIONES DE VISTA=================================================
-  Padding button(context, bool isShowImage) {
+  Padding button(context) {
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
       child: Row(
@@ -386,60 +163,47 @@ class _PaquetesFormState extends State<PaquetesForm> {
             CustomButton(
                 text: "Generar",
                 press: () async {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    // plusFormKey.currentState!.save();
 
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
+                    print("$dias, $fechas, $plus, $costo");
 
-                }})
-          ]),
-        ],
-      ),
-    );
-  }
+                    //============== Función para mostrar dialogo loader ==============//
+                    // var loader = true;
+                    // if (loader) {
+                    //   showDialog(
+                    //       context: context,
+                    //       builder: (context) {
+                    //         return const Center(
+                    //           child: SpinKitChasingDots(
+                    //             color: Colors.white,
+                    //             size: 140,
+                    //           ),
+                    //         );
+                    //       });
+                    // }
 
-  Padding obsReporte() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 13),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Column(
-            children: [
-              Text("Observaciones: "),
-            ],
-          ),
-          //SizedBox(height: SizeConfig.screenHeight * 0.03),
-          Container(
-            //height: getProportionateScreenHeight(225),
-            //width: getProportionateScreenWidth(600),
-            constraints: const BoxConstraints(
-              maxHeight: 650,
-              minHeight: 35,
-            ),
-            child: TextFormField(
-                scrollPadding: const EdgeInsets.all(10),
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.only(left: 10, right: 10),
-                  hintText: "Agregue sus observaciones...",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(25)),
-                  ),
-                ),
-                onChanged: (newValue) {
-                  return;
-                },
-                validator: (newValue) {
-                  if (newValue!.isEmpty) {
-                    return descripReportError;
+                    //============== Petición para obtener el token del usuario mandadero (notificacion) ==============//
+                    setState(() {
+                      // loader = false;
+                    });
+
+                    //============== Petición para subir la compra al servidor ==============//
+                    parametros = {
+                      "opcion": "2",
+                      "fechas": fechas,
+                      "dias": dias,
+                      "lugares": lugares,
+                      "actividades": plus,
+                      "costo": costo
+                    };
+                    var response = await peticiones(parametros);
+
+                    print(response);
                   }
-                  return null;
-                },
-                onSaved: (newValue) {
-                  descripReport = newValue!;
-                },
-                maxLines: 12,
-                minLines: 1),
-          )
+                })
+          ]),
         ],
       ),
     );
@@ -457,80 +221,23 @@ class _PaquetesFormState extends State<PaquetesForm> {
             ],
           ),
           SizedBox(
-            height: getProportionateScreenHeight(35),
-            width: getProportionateScreenWidth(190),
-            child: DatePicker()
-            // child: Align(
-            //     alignment: Alignment.center, // Centra el contenido
-            //     child: DropdownButtonFormField<String>(
-            //       value: personaRecibe,
-            //       items: admins.map<DropdownMenuItem<String>>((Usuario admins) {
-            //         return DropdownMenuItem<String>(
-            //           value: "${admins.nombre} ${admins.apellidos}",
-            //           child: Text("${admins.nombre} ${admins.apellidos}"),
-            //         );
-            //       }).toList(),
-            //       decoration: InputDecoration(
-            //         border: OutlineInputBorder(
-            //           borderRadius: BorderRadius.circular(10.0),
-            //           borderSide: const BorderSide(
-            //             width: 0,
-            //             color: Color.fromARGB(
-            //                 255, 161, 161, 161), // Color del borde
-            //           ),
-            //         ),
-            //         contentPadding: const EdgeInsets.only(left: 15, right: 15),
-            //         hintText: "Persona quien recibió",
-            //         hintStyle: const TextStyle(
-            //           color: Color.fromARGB(255, 72, 70, 70),
-            //           fontSize: 15,
-            //           fontWeight: FontWeight.w600,
-            //         ),
-            //       ),
-            //       style: const TextStyle(
-            //         fontSize: 15,
-            //         color: Color.fromARGB(255, 0, 0, 0),
-            //       ),
-            //       onChanged: (String? value) {
-            //         setState(() {
-            //           personaRecibe = value;
-            //           isPersRecibio = true;
-            //         });
-            //       },
-            //       validator: (value) {
-            //         if (value == null) {
-            //           //return kLugarNullError;
-            //         }
-            //         return null;
-            //       },
-            //     )),
-
-            // TextFormField(
-            //   decoration: const InputDecoration(
-            //     contentPadding: EdgeInsets.only(left: 10, right: 10),
-            //     //hintText: 'remitente',
-            //     border: OutlineInputBorder(
-            //       borderRadius: BorderRadius.all(Radius.circular(100.0)),
-            //     ),
-            //   ),
-            //   onChanged: (newValue) {
-            //     return;
-            //   },
-            //   validator: (newValue) {
-            //     if (newValue!.isEmpty) {
-            //       return;
-            //     }
-            //     return null;
-            //   },
-            //   onSaved: (newValue) => personaRecibe = newValue!,
-            // ),
-          )
+              height: getProportionateScreenHeight(35),
+              width: getProportionateScreenWidth(190),
+              child: DatePicker(
+                onDateChanged: (String newValue) {
+                  setState(() {
+                    fechas = newValue;
+                  });
+                  print(
+                      "Las fechas son las siguienteees:::::::::::::: $fechas");
+                },
+              ))
         ],
       ),
     );
   }
 
-  Padding folioCompra(String idCompra) {
+  Padding folioCompra() {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Row(
@@ -547,7 +254,7 @@ class _PaquetesFormState extends State<PaquetesForm> {
             child: TextFormField(
               textAlign: TextAlign.end,
               decoration: InputDecoration(
-                  hintText: idCompra,
+                  hintText: "1",
                   focusColor: Colors.transparent,
                   contentPadding: const EdgeInsets.only(left: 10, right: 10),
                   labelStyle: const TextStyle(
@@ -565,7 +272,7 @@ class _PaquetesFormState extends State<PaquetesForm> {
     );
   }
 
-  Padding costoPaquete(String costo) {
+  Padding costoPaquete() {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Row(
@@ -582,56 +289,24 @@ class _PaquetesFormState extends State<PaquetesForm> {
             child: TextFormField(
               controller: costoController,
               decoration: InputDecoration(
-                hintText: costo,
+                hintText: "Costo",
                 contentPadding: const EdgeInsets.only(left: 10, right: 10),
                 border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(100.0)),
                 ),
               ),
-              enabled: false,
-              //onSaved: (newValue) => lugar = newValue!,
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Padding asientosPaquete(String? asientos) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Column(
-            children: <Widget>[
-              Text("Asientos disponibles: ", style: lblStyleColumnForm),
-            ],
-          ),
-          SizedBox(
-            height: getProportionateScreenHeight(35),
-            width: getProportionateScreenWidth(120),
-            child: TextFormField(
-              controller: importeUtiController,
-              decoration: InputDecoration(
-                hintText: asientos,
-                contentPadding: const EdgeInsets.only(left: 10, right: 10),
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(100.0)),
-                ),
-              ),
-              onChanged: (newValue) {
-                isImportUti = true;
-              },
               validator: (newValue) {
                 if (newValue!.isEmpty) {
-                  return;
+                  return kMontoNullError;
+                } else if (!montoValidatorRegExp.hasMatch(newValue)) {
+                  return null;
                 }
                 return null;
               },
-              onSaved: (newValue) => asientos = newValue,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              onSaved: (newValue) {
+                costo = newValue;
+              },
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
               inputFormatters: <TextInputFormatter>[
                 FilteringTextInputFormatter.allow(
                     RegExp('[0-9.([0-9)?]')), // Limita a dígitos solamente
@@ -643,189 +318,101 @@ class _PaquetesFormState extends State<PaquetesForm> {
     );
   }
 
-  Column iconAddImageBuy(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding:
-              EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              //---------------------Agregar imagen de compra---------------------------------
-              IconButton(
-                  icon: const Icon(Icons.add_a_photo_sharp),
-                  onPressed: () {
-                    //_showInkWell = true;
-                    opciones(context);
-                  })
+  Padding asientosPaquete() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Column(
+            children: <Widget>[
+              Text("Lugares disponibles: ", style: lblStyleColumnForm),
             ],
           ),
-        ),
-        SizedBox(height: getProportionateScreenWidth(4)),
-      ],
-    );
-  }
-
-  opciones(context) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            contentPadding: const EdgeInsets.all(0),
-            content: SingleChildScrollView(
-              child: Column(children: [
-                //--------------------------------------------------------InkWell de imagen desde camara--------------------------------------------------------
-                InkWell(
-                  onTap: () async {
-                    takeImages();
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                        border: Border(
-                            bottom: BorderSide(width: 1, color: Colors.grey))),
-                    child: const Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                                child: Text(
-                              "Tomar una foto",
-                              style: TextStyle(fontSize: 16),
-                            )),
-                            Icon(
-                              Icons.camera_alt_outlined,
-                              color: kPrimaryColor,
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                //--------------------------------------------------------InkWell de imagen desde galeria--------------------------------------------------------
-                InkWell(
-                  onTap: () async {
-                    //Seleccionar multiples imagenes
-                    await selectImages();
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                        border: Border(
-                            bottom: BorderSide(width: 1, color: Colors.grey))),
-                    child: const Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                                child: Text(
-                              "Escoger de galería",
-                              style: TextStyle(fontSize: 16),
-                            )),
-                            Icon(
-                              Icons.photo_library,
-                              color: kPrimaryColor,
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ]),
-            ),
-          );
-        });
-  }
-
-  //=================================================FIN DE FUNCIONES=================================================
-  Padding cardImage(int index) {
-    return Padding(
-      padding: EdgeInsets.only(
-          left: getProportionateScreenWidth(6),
-          bottom: getProportionateScreenHeight(6)),
-      child: SizedBox(
-        width: getProportionateScreenWidth(254),
-        child: GestureDetector(
-          onLongPress: () {
-            //eliminar imagen
-            showEliminarImagen(index);
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AspectRatio(
-                aspectRatio: 1.02,
-                child: Container(
-                  padding: EdgeInsets.all(getProportionateScreenWidth(6)),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    //color: kSecondaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Hero(
-                    tag: files.indexed.toString(),
-                    //imagen proporcionada por el comprador
-                    child: Image.file(files[index]),
-
-                    // _image == null
-                    //     ? const Text(
-                    //         "No se seleccionó ninguna imagen",
-                    //         textAlign: TextAlign.center,
-                    //       )
-                    //     : Image.file(_image!),
-                  ),
+          SizedBox(
+            height: getProportionateScreenHeight(35),
+            width: getProportionateScreenWidth(120),
+            child: TextFormField(
+              controller: luagresController,
+              decoration: InputDecoration(
+                hintText: "Luagres",
+                contentPadding: const EdgeInsets.only(left: 10, right: 10),
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(100.0)),
                 ),
               ),
-            ],
-          ),
-        ),
+              validator: (newValue) {
+                if (newValue!.isEmpty) {
+                  return kMontoNullError;
+                }
+                return null;
+              },
+              onSaved: (newValue) {
+                lugares = newValue;
+              },
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(
+                    RegExp('[0-9]')), // Limita a dígitos solamente
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
 
-  Future<dynamic> showEliminarImagen(int index) {
-    return showDialog(
-        context: context,
-        builder: (buildcontext) {
-          return AlertDialog(
-            title: const Text("¿Deséa eliminar ésta imagen?",
-                style: TextStyle(color: Color.fromARGB(255, 218, 11, 11))),
-            //content: const Text("La sesión se cerrará"),
-            actions: <Widget>[
-              TextButton(
-                child: const Text(
-                  "No",
-                  style: TextStyle(color: Color.fromARGB(255, 23, 21, 21)),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: const Text(
-                  "Si, eliminar",
-                  style: TextStyle(color: Color.fromARGB(255, 218, 11, 11)),
-                ),
-                onPressed: () async {
-                  await imagesPath.removeAt(index);
-                  await files.removeAt(index);
+  Row DividerLine(double ancho, bool? icon) {
+    if (widgetPlus.length < 2) {
+      ancho += 50;
+    }
 
-                  Navigator.of(context).pop();
-
-                  setState(() {
-                    recargarImagenes = true;
-                  });
-
-                  // setState(() {
-                  //   isLoggedIn = false;
-                  // });
-                },
-              )
-            ],
-          );
-        });
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        const Divider(
+          height: 50,
+        ),
+        if (widgetPlus.length >= 2) ...[
+          IconButton(
+            icon: const Icon(
+              Icons.do_disturb_on_rounded,
+              color: Color.fromARGB(255, 147, 12, 12),
+              size: 35.0,
+            ),
+            highlightColor: const Color.fromARGB(255, 254, 254, 254),
+            onPressed: () {
+              setState(() {
+                // iterador--;
+                // products.removeAt(products.length - 1);
+                widgetPlus.removeAt(widgetPlus.length - 1);
+              });
+            },
+          ),
+        ],
+        Container(
+          width: ancho, // Ancho personalizado para la línea
+          height: 1, // Grosor de la línea
+          color: const Color.fromARGB(255, 174, 173, 173), // Color de la línea
+        ),
+        if (icon == true) ...[
+          IconButton(
+            icon: const Icon(
+              Icons.add_circle,
+              color: Color.fromARGB(255, 81, 181, 15),
+              size: 35.0,
+            ),
+            highlightColor: const Color.fromARGB(255, 254, 254, 254),
+            onPressed: () {
+              setState(() {
+                // iterador++;
+                // products.add(Productos(name: "", cantidad: "", unidad: ""));
+                widgetPlus.add(Plus());
+              });
+            },
+          ),
+        ],
+      ],
+    );
   }
 }

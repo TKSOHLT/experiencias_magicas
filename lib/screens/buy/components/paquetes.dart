@@ -12,8 +12,17 @@ import 'package:flutter/material.dart';
 
 class Paquetes extends StatefulWidget {
   const Paquetes({
+    required this.dias,
+    required this.plus,
+    required this.costo,
+    required this.titulo,
     super.key,
   });
+
+  final int titulo;
+  final List<dynamic> dias;
+  final List<dynamic> plus;
+  final num costo;
 
   @override
   State<Paquetes> createState() => _PaquetesState();
@@ -21,15 +30,15 @@ class Paquetes extends StatefulWidget {
 
 class _PaquetesState extends State<Paquetes> {
 //variables para almacenar los valores desde la API
-  String lblTitle = "";
-  String? producto;
-  String? estado;
-  String? idCompra;
   bool isLoading = true;
   bool visible = true;
-  List<Widget> widgetCardActivity = [];
-
+  String texto = "";
+  int invertIndex = 0;
   final List<String?> errors = [];
+ 
+  //Var lengths
+  int lengthDias = 0;
+  int lengthPlus = 0;
 
 //Carga de datos de usuario mandadero desde controlador
   @override
@@ -40,6 +49,23 @@ class _PaquetesState extends State<Paquetes> {
 
   @override
   Widget build(BuildContext context) {
+
+    if( widget.dias.length > 1){
+      lengthDias = widget.dias.length;
+    }else if(widget.dias.length == 1 && widget.dias[0] == ""){
+      lengthDias = 0;
+    }else{
+     lengthDias = 1;
+    }
+
+    if( widget.plus.length > 1){
+      lengthPlus = widget.plus.length;
+    }else if(widget.plus.length == 1 && widget.plus[0] == ""){
+      lengthPlus = 0;
+    }else{
+     lengthPlus = 1;
+    }
+
     return SafeArea(
       child: SingleChildScrollView(
         child: Column(
@@ -49,7 +75,7 @@ class _PaquetesState extends State<Paquetes> {
               children: [
                 Expanded(
                   child: Text(
-                    "¡Bla bla bla",
+                    "Paquete ${widget.titulo}",
                     style: headingStyleTwo,
                     textAlign: TextAlign.center,
                   ),
@@ -104,17 +130,28 @@ class _PaquetesState extends State<Paquetes> {
                             width: SizeConfig.defaultSize,
                             child: DataTable(
                               columns: const [
-                                DataColumn(label: Text('Producto')),
-                                DataColumn(label: Text('Cantidad')),
+                                DataColumn(label: Text('Plus')),
+                                DataColumn(label: Text('Contiene')),
                               ],
-                              rows: List<DataRow>.generate(2, (index) {
+                              rows: List<DataRow>.generate((lengthDias) + (lengthPlus), (index) {
+
+                                  if(index <= (lengthDias - 1)){
+                                    texto = "Dia ${widget.dias[index]}";
+                                  }else{
+                                    try{
+                                      texto = widget.plus[invertIndex];
+                                      invertIndex++;
+                                    }catch(e){}
+                                    
+                                  }
+
                                 return DataRow(cells: <DataCell>[
                                   DataCell(Container(
                                       constraints: BoxConstraints(
                                           maxWidth:
                                               getProportionateScreenWidth(70)),
-                                      child: const Text(
-                                        "arregloProductos[index]",
+                                      child: Text(
+                                         texto
                                       ))),
                                   DataCell(Container(
                                       constraints: BoxConstraints(
@@ -124,7 +161,8 @@ class _PaquetesState extends State<Paquetes> {
                                 ]);
                               }),
                               columnSpacing: BorderSide.strokeAlignCenter,
-                            ))
+                            )),
+                            Text("Costo: ${widget.costo}")
                       ])),
                   btnBuy(),
                 ]))

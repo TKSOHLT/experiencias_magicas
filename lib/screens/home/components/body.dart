@@ -5,11 +5,15 @@
 import 'dart:async';
 
 import 'package:experiencias_magicas/constants.dart';
+import 'package:experiencias_magicas/controller/controller_principal.dart';
+import 'package:experiencias_magicas/globals.dart';
 import 'package:experiencias_magicas/screens/home/components/card_activity.dart';
 import 'package:experiencias_magicas/screens/home/components/day_screen.dart';
 import 'package:experiencias_magicas/screens/home/components/home_header.dart';
 import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/material.dart';
+
+int index = 0;
 
 class Body extends StatefulWidget {
   const Body({
@@ -27,7 +31,6 @@ class _BodyState extends State<Body> {
   String? estado;
   String? idCompra;
   bool isLoading = true;
-  List<Widget> widgetCardActivity = [];
 
   final List<String?> errors = [];
 
@@ -36,13 +39,44 @@ class _BodyState extends State<Body> {
   void initState() {
     super.initState();
     //Reload cada dos minutos
-    reload();
+    // reload();
+    cargarItinerarios();
   }
 
   void reload() {
     Timer(const Duration(seconds: 120), () {
       reload();
     });
+  }
+
+    Future<void> cargarItinerarios() async {
+    widgetItinerary = [];
+
+    parametros = {"opcion": "3.3"};
+    var respuesta = await peticiones(parametros);
+
+    if (respuesta != "err_internet_conex") {
+      if (mounted) {
+        setState(() {
+          if (respuesta == 'empty') {
+          } else {
+            for (int i = 0; i < respuesta.length; i++) {
+              //Route ruta = MaterialPageRoute(builder: (context) => ReceivedBuyScreen(idCompra: respuesta[i]['id_compra'].toString()));
+              // widgetCardBuy.insert(
+              //     0, );
+              widgetItinerary.add(DayScreen(id_itinerario: respuesta[i]['id'], actividades: respuesta[i]['nombre'],));
+            }
+          }
+          isLoading = false; // Indicamos que hemos terminado de cargar
+        });
+      }
+    } else {
+      if (mounted) {
+      }
+    }
+    // } catch (e) {
+    //   //
+    // }
   }
 
   @override
@@ -71,8 +105,9 @@ class _BodyState extends State<Body> {
                   DividerLine(150),
 
                   SizedBox(height: getProportionateScreenHeight(10)),
-                  const Column(
-                    children: [DayScreen()],
+                  Column(
+                    children: widgetItinerary,
+                    // children: [DayScreen()],
                   ),
                   
                   SizedBox(height: getProportionateScreenHeight(10)),

@@ -1,4 +1,9 @@
+import 'dart:ffi';
+
 import 'package:experiencias_magicas/components/datepicker.dart';
+import 'package:experiencias_magicas/components/datepickerUsers.dart';
+import 'package:experiencias_magicas/controller/controller_principal.dart';
+import 'package:experiencias_magicas/globals.dart';
 import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,8 +25,8 @@ class _BuyHeaderState extends State<BuyHeader> {
   final List<String?> errors = [];
   //final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  late String email;
-  late String password;
+  num lugares = 0;
+  // late String password;
 
   bool loading = false;
   void addError({String? error}) {
@@ -39,6 +44,37 @@ class _BuyHeaderState extends State<BuyHeader> {
       setState(() {
         errors.remove(error);
       });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    cargarLugares();
+  }
+
+  Future<void> cargarLugares() async {
+    
+    parametros = {"opcion": "3.1"};
+
+    var respuesta = await peticiones(parametros);
+
+    if (respuesta != "err_internet_conex") {
+      setState(() {
+        if (respuesta == 'empty') {
+          lugares = 0;
+          // isLoading = false;
+        } else {
+          for(int i=0; i<respuesta.length; i++) {
+            lugares +=  respuesta[i]['seats'];
+          }
+          // isLoading = false;
+        }
+      });
+
+    } else {
+
     }
   }
 
@@ -64,7 +100,7 @@ class _BuyHeaderState extends State<BuyHeader> {
   }
 
   Column buildDatePickerField() {
-    return const Column(
+    return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -74,7 +110,7 @@ class _BuyHeaderState extends State<BuyHeader> {
               "Fechas disponibles",
               textAlign: TextAlign.center,
             )),
-            Expanded(child: DatePicker())
+            Expanded(child: DatePickerUsers())
           ],
         )
       ],
@@ -96,7 +132,7 @@ class _BuyHeaderState extends State<BuyHeader> {
                       color: Color.fromARGB(214, 255, 255, 255),
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: const Padding(
+                    child: Padding(
                         padding:
                             EdgeInsets.symmetric(vertical: 0, horizontal: 16.0),
                         child: Row(
@@ -108,7 +144,7 @@ class _BuyHeaderState extends State<BuyHeader> {
                                   child: Padding(
                                       padding: EdgeInsets.only(top: 6),
                                       child: Text(
-                                        '10',
+                                        '$lugares',
                                         textAlign: TextAlign.center,
                                       )))
                             ]))))
