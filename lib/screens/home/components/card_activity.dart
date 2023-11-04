@@ -1,4 +1,5 @@
 import 'package:experiencias_magicas/screens/home/components/day_screen.dart';
+import 'package:experiencias_magicas/screens/home/components/day_screen.dart';
 import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/material.dart';
 

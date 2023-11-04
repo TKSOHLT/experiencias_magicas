@@ -16,6 +16,10 @@ class Paquetes extends StatefulWidget {
     required this.plus,
     required this.costo,
     required this.titulo,
+    required this.dias,
+    required this.plus,
+    required this.costo,
+    required this.titulo,
     super.key,
   });
 
@@ -130,6 +134,8 @@ class _PaquetesState extends State<Paquetes> {
                             width: SizeConfig.defaultSize,
                             child: DataTable(
                               columns: const [
+                                DataColumn(label: Text('Plus')),
+                                DataColumn(label: Text('Contiene')),
                                 DataColumn(label: Text('Plus')),
                                 DataColumn(label: Text('Contiene')),
                               ],
