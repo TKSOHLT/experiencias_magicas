@@ -31,11 +31,23 @@ class ShopProduct extends StatelessWidget {
                 ),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                product.description,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.blueGrey,
+                ),
+              ),
+            ),
             Text(
               '\$${product.price}',
               textAlign: TextAlign.center,
               style: TextStyle(
-                  color: Colors.blueGrey, fontWeight: FontWeight.bold, fontSize: 18.0),
+                  color: Colors.blueGrey,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0),
             ),
           ],
         ));
@@ -60,28 +72,32 @@ class ShopProductDisplay extends StatelessWidget {
             height: 150,
             width: 150,
             child: Transform.scale(
-              scale: 1.2,
+              scale: 1,
               child: Image.asset('assets/images/splash_3.jpeg'),
             ),
           ),
         ),
+        // Positioned(
+        //   left: 50,
+        //   top: 5,
+        //   child: SizedBox(
+        //       height: 80,
+        //       width: 80,
+        //       child: Image.asset(
+        //         '${product.image}',
+        //         fit: BoxFit.contain,
+        //       )),
+        // ),
         Positioned(
-          left: 50,
-          top: 5,
-          child: SizedBox(
-              height: 80,
-              width: 80,
-              child: Image.asset(
-                '${product.image}',
-                fit: BoxFit.contain,
-              )),
-        ),
-        Positioned(
-          right: 30,
-          bottom: 25,
+          right: 10,
+          bottom: 120,
           child: Align(
             child: IconButton(
-              icon: Image.asset('assets/images/splash_3.jpeg'),
+              icon: Icon(
+                Icons.close,
+                color: Color.fromARGB(255, 202, 47, 47),
+                size: 45,
+              ),
               onPressed: onPressed,
             ),
           ),

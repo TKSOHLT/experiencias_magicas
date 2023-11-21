@@ -1,4 +1,5 @@
 import 'package:experiencias_magicas/constants.dart';
+import 'package:experiencias_magicas/globals.dart';
 import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/material.dart';
 
@@ -6,16 +7,15 @@ class ChatRow extends StatelessWidget {
   const ChatRow({
     Key? key,
     required this.text,
-    required this.status,
     required this.name,
-    required this.hour,
-    required this.icon,
-    required this.allText,
+    required this.stars,
+    required this.image,
     this.press,
     this.longPress,
   }) : super(key: key);
 
-  final String text, status, name, hour, icon, allText;
+  final String text, name, image;
+  final int stars;
   final VoidCallback? press, longPress;
 
   @override
@@ -63,8 +63,8 @@ class ChatRow extends StatelessWidget {
                     border: Border.all(style: BorderStyle.solid),
                   ),
                   child: ClipOval(
-                    child: Image.asset(
-                      "assets/images/splash_3.jpeg",
+                    child: Image.network(
+                      "$urlImages${image}",
                       height:
                           50, // Ajusta el tamaño de la imagen según tus necesidades
                       width:
@@ -79,43 +79,72 @@ class ChatRow extends StatelessWidget {
                   children: [
                     Container(
                       constraints: BoxConstraints(
-                          maxWidth: getProportionateScreenHeight(250)),
+                          maxWidth: getProportionateScreenWidth(240)),
                       child: Text(
-                        "asaosdjalsknflsdknfslkdnflsknflsdnflsdfsdkfnsdlkfnsldkfnlskdnflskdnflksdnflksndfsldkfnsldknfslkdnflskndflksndlkfnslkdnflskndflskdnflsdnflskdnflksndflsndlfknsdfksdf",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                        text,
+                        style: styleCardOpinion,
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.delivery_dining,
-                                color: Colors.amber),
-                            Text(
-                              name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
+                    SizedBox(
+                        height: 10), // Espaciado entre la imagen y el texto
+
+                    Container(
+                      constraints: BoxConstraints(
+                          minWidth: getProportionateScreenHeight(250)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.person, color: Colors.amber),
+                              Text(
+                                name,
+                                style: styleCardOpinionName,
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(width: getProportionateScreenWidth(80),),
-                        Row(
-                          children: [
-                            const Icon(Icons.star, color: Colors.amber),
-                            const Icon(Icons.star, color: Colors.amber),
-                            const Icon(Icons.star, color: Colors.amber),
-                            const Icon(Icons.star, color: Colors.amber),
-                            const Icon(Icons.star,
-                                color: Color.fromARGB(255, 0, 0, 0)),
-                          ],
-                        )
-                      ],
-                    ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.star,
+                                color: stars >= 1
+                                    ? Colors.amber
+                                    : Color.fromARGB(255, 37, 36, 36),
+                                size: 25,
+                              ),
+                              Icon(
+                                Icons.star,
+                                color: stars >= 2
+                                    ? Colors.amber
+                                    : Color.fromARGB(255, 37, 36, 36),
+                                size: 25,
+                              ),
+                              Icon(
+                                Icons.star,
+                                color: stars >= 3
+                                    ? Colors.amber
+                                    : Color.fromARGB(255, 37, 36, 36),
+                                size: 25,
+                              ),
+                              Icon(
+                                Icons.star,
+                                color: stars >= 4
+                                    ? Colors.amber
+                                    : Color.fromARGB(255, 37, 36, 36),
+                                size: 25,
+                              ),
+                              Icon(
+                                Icons.star,
+                                color: stars >= 5
+                                    ? Colors.amber
+                                    : Color.fromARGB(255, 37, 36, 36),
+                                size: 25,
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    )
                   ],
                 )
               ],

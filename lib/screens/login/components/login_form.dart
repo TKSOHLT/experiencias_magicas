@@ -2,8 +2,13 @@ import 'package:experiencias_magicas/components/custom_button.dart';
 import 'package:experiencias_magicas/components/custom_surfix_icon.dart';
 import 'package:experiencias_magicas/components/default_button.dart';
 import 'package:experiencias_magicas/components/form_error.dart';
+import 'package:experiencias_magicas/controller/controller_principal.dart';
+import 'package:experiencias_magicas/globals.dart';
 import 'package:experiencias_magicas/screens/register/register_screen.dart';
+import 'package:experiencias_magicas/screens/superhome/superhome.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constants.dart';
 import '../../../size_config.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -67,19 +72,77 @@ class _LoginFormState extends State<LoginForm> {
           DefaultButton(
             text: "Continuar",
             press: () async {
-              if (loading) {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const Center(
-                        child:
-                            SpinKitChasingDots(color: Colors.white, size: 140),
-                      );
-                    });
-              }
-
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
+
+                    final fcmToken =
+                        await FirebaseMessaging.instance.getToken();
+print("Token:::::::::$fcmToken");
+                    if (fcmToken != null) {
+                      // parametros = {
+                      //   "opcion": "1.8",
+                      //   "id_usuario": usuario[0]['id_usuario'].toString(),
+                      //   "token": fcmToken.toString()
+                      // };
+
+                      // var response = await peticiones(parametros);
+                    }
+
+                if (loading) {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return const Center(
+                          child: SpinKitChasingDots(
+                              color: Colors.white, size: 140),
+                        );
+                      });
+                }
+
+                parametros = {
+                  "opcion": "1",
+                  "correo": email,
+                  "contrasena": password
+                };
+
+                var respuesta = await peticiones(parametros);
+
+                switch (respuesta) {
+                  case "user_not_found":
+                    addError(error: 'Usuario no encontrado.');
+                    break;
+                  case "error":
+                    addError(error: 'Usuario o contraseña incorrecta.');
+                    break;
+                  default:
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    setState(() {
+                      prefs.setString(
+                          'id_usuario', respuesta[0]['id_user'].toString());
+                      prefs.setString('rol', respuesta[0]['rol'].toString());
+                      prefs.setString('nombre_usuario',
+                          respuesta[0]['first_name'].toString());
+                      prefs.setString(
+                          'telefono', respuesta[0]['phone'].toString());
+                      rol = respuesta[0]['rol'].toString();
+                    });
+
+                    // ignore: use_build_context_synchronously
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            const SuperHomeScreen(),
+                      ),
+                      //funcion que limpia la pila de rutas anteriores
+                      (route) => false,
+                    );
+                }
+
+                setState(() {
+                  loading = false;
+                });
               }
             },
           ),

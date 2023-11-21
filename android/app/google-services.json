@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "960803014808",
+    "project_id": "experienciasmagicas-b15ac",
+    "storage_bucket": "experienciasmagicas-b15ac.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:960803014808:android:39a86ccab138f69112e8ed",
+        "android_client_info": {
+          "package_name": "com.example.experiencias_magicas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrLImPO4enhoa2zx3wJy_rrHODgAtKq2c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

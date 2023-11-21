@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:experiencias_magicas/components/custom_button.dart';
@@ -6,14 +5,14 @@ import 'package:experiencias_magicas/components/datepicker.dart';
 import 'package:experiencias_magicas/constants.dart';
 import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:image_picker/image_picker.dart';
 
 class GalleryAdd extends StatefulWidget {
-  const GalleryAdd(
-      {super.key});
+  const GalleryAdd({super.key});
 
   @override
-  _GalleryAddState createState() =>
-      _GalleryAddState();
+  _GalleryAddState createState() => _GalleryAddState();
 }
 
 class _GalleryAddState extends State<GalleryAdd> {
@@ -23,16 +22,11 @@ class _GalleryAddState extends State<GalleryAdd> {
   final _formKey = GlobalKey<FormState>();
   final List<String?> errors = [];
 //variables booleanas para el manejo del estado de reporte y carga de imagen
-  bool stateReporte = false;
-  bool isVisibleWidget = false;
   bool isShowImage = false;
   bool recargarImagenes = false;
   //bool imagenCargada = false;
   bool arrayImagenes = false;
-  bool isPersRecibio = false;
-  bool isImportUti = false;
   bool arrayImagenesCamera = false;
-  File? _image;
 
   File? originalImage;
   File? compressedImage;
@@ -54,13 +48,8 @@ class _GalleryAddState extends State<GalleryAdd> {
   //List<File> filesCamera = [];
 
   //variables locales que almacenan lo que el usuario ingrese
-  String? folio;
-  String? asientos;
-  String? importeSob;
-
-  String? personaRecibe;
-  String? statusReporte;
-  String? descripReport;
+  String? descripcion;
+  String? nombre;
   String? nombreImagen;
   //variables que almacenan el resultado de la seleccion de la imagen
   String? imageURL;
@@ -80,134 +69,108 @@ class _GalleryAddState extends State<GalleryAdd> {
   }
 
   Future<void> selectImages() async {
-    // final picker = ImagePicker();
-    // final pickedImages = await picker.pickMultiImage();
-    // if (pickedImages != null) {
-    //   setState(() {
-    //     imagesPath = pickedImages.map((image) => image.path).toList();
-    //     isShowImage = true;
-    //     idCompraImg = idCompra;
-    //   });
+    final picker = ImagePicker();
+    final pickedImages = await picker.pickMultiImage();
+    if (pickedImages != null) {
+      setState(() {
+        imagesPath = pickedImages.map((image) => image.path).toList();
+        isShowImage = true;
+      });
 
-    //     for(XFile img in pickedImages){
-    //       File file = File(img.path);
-    //       //ontener nombre de la imagen seleccionada para asignarla a la ruta de imagen comprimida
-    //         nombreImage = file.path.split('/').last;
-    //       //comprimiendo imagenes de galeria
-    //       final compressedFile = await FlutterImageCompress.compressAndGetFile(
-    //         file.path,
-    //         "$compressedImagePath/$nombreImage.jpg",
-    //         quality: 20,
-    //       );
+      for (XFile img in pickedImages) {
+        File file = File(img.path);
+        //ontener nombre de la imagen seleccionada para asignarla a la ruta de imagen comprimida
+        nombreImage = file.path.split('/').last;
+        //comprimiendo imagenes de galeria
+        final compressedFile = await FlutterImageCompress.compressAndGetFile(
+          file.path,
+          "$compressedImagePath/$nombreImage.jpg",
+          quality: 20,
+        );
 
-    //       if (compressedFile != null) {
-    //         setState(() {
-    //           File file = File(compressedFile.path);
-    //           //agregando imagenes comprimidas al arreglo para mostrar en vista
-    //             files.add(file);
-    //             print('Agregando imagenes comprimidas a lista FILES: $files');
+        if (compressedFile != null) {
+          setState(() {
+            File file = File(compressedFile.path);
+            //agregando imagenes comprimidas al arreglo para mostrar en vista
+            files.add(file);
 
-    //           //agregando imagenes de camara a imagesPath
-    //             if (files.isNotEmpty) {
-    //               for (File imgFile in files) {
-    //                 imagesPath.add(imgFile.path);
-    //                 arrayImagenes = true;
-    //                 print('imagesPath camara: $imagesPath');
-    //               }
+            //agregando imagenes de camara a imagesPath
+            if (files.isNotEmpty) {
+              for (File imgFile in files) {
+                imagesPath.add(imgFile.path);
+                arrayImagenes = true;
+              }
+            }
+          });
+        }
+      }
+    }
+    //Convierte el path String en Objetos File
 
-    //             }
-
-    //             });
-
-    //             print('Tamaño imagen original $nombreImage');
-    //             print(await file.length());
-    //             print('Tamaño imagen comprimida $nombreImage');
-    //             print(await compressedFile.length());
-    //       }
-
-    //     }
-
+    // for (String path in imagesPath) {
+    //   File file = File(path);
+    //   files.add(file);
     // }
-    // //Convierte el path String en Objetos File
 
-    // // for (String path in imagesPath) {
-    // //   File file = File(path);
-    // //   files.add(file);
-    // // }
-
-    // if (files != null) {
-    //   arrayImagenes = true;
-    // }
+    if (files != null) {
+      arrayImagenes = true;
+    }
   }
 
   Future<void> takeImages() async {
-    // final imagePicker = ImagePicker();
-    // final pickedImage = await imagePicker.pickImage(source: ImageSource.camera);
+    final imagePicker = ImagePicker();
+    final pickedImage = await imagePicker.pickImage(source: ImageSource.camera);
     // setState(() async {
-    //   if (pickedImage != null) {
-    //     isShowImage = true;
-    //     idCompraImg = idCompra;
-    //     //_image contiene la iomagen tomada de camara
-    //     _image = File(pickedImage.path);
-    //     //ontener nombre de la imagen seleccionada para asignarla a la ruta de imagen comprimida
-    //     nombreImage = pickedImage.path.split('/').last;
+    if (pickedImage != null) {
+      isShowImage = true;
+      //_image contiene la iomagen tomada de camara
+      //ontener nombre de la imagen seleccionada para asignarla a la ruta de imagen comprimida
+      nombreImage = pickedImage.path.split('/').last;
 
-    //     //comprimiendo imagen de camara
-    //       final compressedFile = await FlutterImageCompress.compressAndGetFile(
-    //         pickedImage.path,
-    //         "$compressedImagePath/$nombreImage.jpg",
-    //         quality: 20,
-    //       );
-    //     //comprimir imagen
-    //     print('Comprimiendo imagen camara');
-    //     if (compressedFile != null) {
-    //         setState(() {
-    //           File file = File(compressedFile.path);
-    //           //agregando imagenes comprimidas al arreglo para mostrar en vista
-    //             files.add(file);
-    //             print('Agregando imagenes comprimidas a lista FILES: $files');
-    //             });
-    //             print('Tamaño imagen original camara $nombreImage');
-    //             print(await pickedImage.length());
-    //             print('Tamaño imagen comprimida camara $nombreImage');
-    //             print(await compressedFile.length());
-    //     }
-    //     //cargar arreglo de imagenes tipo String para cargar en API
-    //     if (files.isNotEmpty) {
-    //       for (File imgFile in files) {
-    //         imagesPath.add(imgFile.path);
-    //         arrayImagenes = true;
-    //       }
-
-    //     }
-    //   }
+      //comprimiendo imagen de camara
+      final compressedFile = await FlutterImageCompress.compressAndGetFile(
+        pickedImage.path,
+        "$compressedImagePath/$nombreImage.jpg",
+        quality: 20,
+      );
+      //comprimir imagen
+      print('Comprimiendo imagen camara');
+      if (compressedFile != null) {
+        setState(() {
+          File file = File(compressedFile.path);
+          //agregando imagenes comprimidas al arreglo para mostrar en vista
+          files.add(file);
+        });
+      }
+      //cargar arreglo de imagenes tipo String para cargar en API
+      if (files.isNotEmpty) {
+        for (File imgFile in files) {
+          imagesPath.add(imgFile.path);
+          arrayImagenes = true;
+        }
+      }
+    }
+    setState(() {});
     // });
   }
 
   Future<void> compressImageS(File originalImage) async {
-    // final compressedFile = await FlutterImageCompress.compressAndGetFile(
-    //   originalImage.path,
-    //   "$compressedImagePath/file1.jpg",
-    //   quality: 10,
-    // );
+    final compressedFile = await FlutterImageCompress.compressAndGetFile(
+      originalImage.path,
+      "$compressedImagePath/file1.jpg",
+      quality: 10,
+    );
 
-    // if (compressedFile != null) {
-    //   setState(() {
-    //     File file = File(compressedFile.path);
-    //     //SE ALMACENA LA IMAGEN COMPRIMIDA EN COMPRESSIMAGE
-    //     //compressedImage = file;
+    if (compressedFile != null) {
+      setState(() {
+        File file = File(compressedFile.path);
+        //SE ALMACENA LA IMAGEN COMPRIMIDA EN COMPRESSIMAGE
+        //compressedImage = file;
 
-    //     //agregando imagenes comprimidas al arreglo para mostrar en vista
-    //       //files.add(file);
-
-    //   });
-
-    //   print('Tamaño imagen original');
-    //   print(await originalImage.length());
-    //   print('Tamaño imagen comprimida');
-    //   print(await compressedFile.length());
-
-    // }
+        //agregando imagenes comprimidas al arreglo para mostrar en vista
+        //files.add(file);
+      });
+    }
   }
 
   //Funcion que convierte un path string a path file
@@ -227,7 +190,6 @@ class _GalleryAddState extends State<GalleryAdd> {
     }
     return files;
   }
-
 
   //==================================Funciones de Ruta en vistas======================================
   //Esta función vuelve a crear la ruta una vez se desheche
@@ -310,7 +272,7 @@ class _GalleryAddState extends State<GalleryAdd> {
                   // asientosPaquete(asientos),
 
                   // Dias(),
-                  
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -318,7 +280,6 @@ class _GalleryAddState extends State<GalleryAdd> {
                       iconAddImageBuy(context)
                     ],
                   ),
-                  Visibility(visible: isVisibleWidget, child: obsReporte()),
                   SizedBox(height: getProportionateScreenHeight(14)),
                   RefreshIndicator(
                     key: _refreshIndicatorKey,
@@ -360,147 +321,14 @@ class _GalleryAddState extends State<GalleryAdd> {
             CustomButton(
                 text: "Generar",
                 press: () async {
-
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
-
-                }})
-          ]),
-        ],
-      ),
-    );
-  }
-
-  Padding obsReporte() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 13),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Column(
-            children: [
-              Text("Observaciones: "),
-            ],
-          ),
-          //SizedBox(height: SizeConfig.screenHeight * 0.03),
-          Container(
-            //height: getProportionateScreenHeight(225),
-            //width: getProportionateScreenWidth(600),
-            constraints: const BoxConstraints(
-              maxHeight: 650,
-              minHeight: 35,
-            ),
-            child: TextFormField(
-                scrollPadding: const EdgeInsets.all(10),
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.only(left: 10, right: 10),
-                  hintText: "Agregue sus observaciones...",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(25)),
-                  ),
-                ),
-                onChanged: (newValue) {
-                  return;
-                },
-                validator: (newValue) {
-                  if (newValue!.isEmpty) {
-                    return descripReportError;
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    print(descripcion);
+                    print(nombre);
+                    print(files);
                   }
-                  return null;
-                },
-                onSaved: (newValue) {
-                  descripReport = newValue!;
-                },
-                maxLines: 12,
-                minLines: 1),
-          )
-        ],
-      ),
-    );
-  }
-
-  Padding fechaInicio() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Column(
-            children: <Widget>[
-              Text("Fechas: ", style: lblStyleColumnForm),
-            ],
-          ),
-          SizedBox(
-            height: getProportionateScreenHeight(35),
-            width: getProportionateScreenWidth(190),
-            child: DatePicker( onDateChanged: (p0) {
-              
-            },)
-            // child: Align(
-            //     alignment: Alignment.center, // Centra el contenido
-            //     child: DropdownButtonFormField<String>(
-            //       value: personaRecibe,
-            //       items: admins.map<DropdownMenuItem<String>>((Usuario admins) {
-            //         return DropdownMenuItem<String>(
-            //           value: "${admins.nombre} ${admins.apellidos}",
-            //           child: Text("${admins.nombre} ${admins.apellidos}"),
-            //         );
-            //       }).toList(),
-            //       decoration: InputDecoration(
-            //         border: OutlineInputBorder(
-            //           borderRadius: BorderRadius.circular(10.0),
-            //           borderSide: const BorderSide(
-            //             width: 0,
-            //             color: Color.fromARGB(
-            //                 255, 161, 161, 161), // Color del borde
-            //           ),
-            //         ),
-            //         contentPadding: const EdgeInsets.only(left: 15, right: 15),
-            //         hintText: "Persona quien recibió",
-            //         hintStyle: const TextStyle(
-            //           color: Color.fromARGB(255, 72, 70, 70),
-            //           fontSize: 15,
-            //           fontWeight: FontWeight.w600,
-            //         ),
-            //       ),
-            //       style: const TextStyle(
-            //         fontSize: 15,
-            //         color: Color.fromARGB(255, 0, 0, 0),
-            //       ),
-            //       onChanged: (String? value) {
-            //         setState(() {
-            //           personaRecibe = value;
-            //           isPersRecibio = true;
-            //         });
-            //       },
-            //       validator: (value) {
-            //         if (value == null) {
-            //           //return kLugarNullError;
-            //         }
-            //         return null;
-            //       },
-            //     )),
-
-            // TextFormField(
-            //   decoration: const InputDecoration(
-            //     contentPadding: EdgeInsets.only(left: 10, right: 10),
-            //     //hintText: 'remitente',
-            //     border: OutlineInputBorder(
-            //       borderRadius: BorderRadius.all(Radius.circular(100.0)),
-            //     ),
-            //   ),
-            //   onChanged: (newValue) {
-            //     return;
-            //   },
-            //   validator: (newValue) {
-            //     if (newValue!.isEmpty) {
-            //       return;
-            //     }
-            //     return null;
-            //   },
-            //   onSaved: (newValue) => personaRecibe = newValue!,
-            // ),
-          )
+                })
+          ]),
         ],
       ),
     );
@@ -514,7 +342,7 @@ class _GalleryAddState extends State<GalleryAdd> {
         children: <Widget>[
           Column(
             children: <Widget>[
-              Text("Nombre del lugar: ", style: lblStyleColumnForm),
+              Text("Nombre de la galeria: ", style: lblStyleColumnForm),
             ],
           ),
           SizedBox(
@@ -523,14 +351,13 @@ class _GalleryAddState extends State<GalleryAdd> {
             child: TextFormField(
               controller: costoController,
               decoration: InputDecoration(
-                hintText: "Lugar",
+                hintText: "Galeria",
                 contentPadding: const EdgeInsets.only(left: 10, right: 10),
                 border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(100.0)),
                 ),
               ),
-              enabled: false,
-              //onSaved: (newValue) => lugar = newValue!,
+              onSaved: (newValue) => nombre = newValue!,
             ),
           )
         ],
@@ -546,7 +373,7 @@ class _GalleryAddState extends State<GalleryAdd> {
         children: <Widget>[
           Column(
             children: <Widget>[
-              Text("Descripción del lugar: ", style: lblStyleColumnForm),
+              Text("Descripción: ", style: lblStyleColumnForm),
             ],
           ),
           SizedBox(
@@ -561,22 +388,14 @@ class _GalleryAddState extends State<GalleryAdd> {
                   borderRadius: BorderRadius.all(Radius.circular(100.0)),
                 ),
               ),
-              onChanged: (newValue) {
-                isImportUti = true;
-              },
+              onChanged: (newValue) {},
               validator: (newValue) {
                 if (newValue!.isEmpty) {
                   return;
                 }
                 return null;
               },
-              onSaved: (newValue) => asientos = newValue,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              // inputFormatters: <TextInputFormatter>[
-              //   FilteringTextInputFormatter.allow(
-              //       RegExp('[0-9.([0-9)?]')), // Limita a dígitos solamente
-              // ],
+              onSaved: (newValue) => descripcion = newValue,
             ),
           )
         ],

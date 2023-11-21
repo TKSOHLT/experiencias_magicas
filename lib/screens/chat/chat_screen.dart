@@ -1,4 +1,3 @@
-
 import 'package:experiencias_magicas/constants.dart';
 import 'package:experiencias_magicas/screens/chat/components/body.dart';
 import 'package:experiencias_magicas/size_config.dart';
@@ -27,12 +26,17 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      body: Container(
-        height: getProportionateScreenHeight(1000),
-        decoration: const BoxDecoration(
-          gradient: kPrimaryGradientColor,
-        ),
-        child: const Body(),
+      body: Column(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: kPrimaryGradientColor,
+              ),
+              child: const Body(),
+            ),
+          ),
+        ],
       ),
     );
   }

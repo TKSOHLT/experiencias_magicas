@@ -41,14 +41,13 @@ class _NavBarState extends State<NavBar> {
         onChange: (index) => _handleNavigationChange(index),
         defaultIndex: 2,
         style: const FluidNavBarStyle(
-          barBackgroundColor: Color.fromARGB(255, 253, 241, 241),
-          iconBackgroundColor: Color.fromARGB(255, 253, 241, 241),
-          iconUnselectedForegroundColor: Color.fromARGB(255, 3, 4, 3),
+          barBackgroundColor: Color.fromARGB(255, 240, 240, 240),
+          iconBackgroundColor: Color.fromARGB(255, 240, 240, 240),
+          iconUnselectedForegroundColor: Color.fromARGB(255, 0, 0, 0),
         ));
   }
 
   void _handleNavigationChange(int index) {
-    print(index);
     widget.onIndexChanged(index); // Llamar a la función del widget padre
 
     setState(() {

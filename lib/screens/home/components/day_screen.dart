@@ -2,6 +2,7 @@ import 'package:experiencias_magicas/components/coustom_nav_bar.dart';
 import 'package:experiencias_magicas/constants.dart';
 import 'package:experiencias_magicas/controller/controller_principal.dart';
 import 'package:experiencias_magicas/enum.dart';
+import 'package:experiencias_magicas/global_functions.dart';
 import 'package:experiencias_magicas/globals.dart';
 import 'package:experiencias_magicas/models.dart';
 import 'package:experiencias_magicas/screens/home/components/body.dart';
@@ -11,14 +12,23 @@ import 'package:flutter/material.dart';
 import 'package:fluid_bottom_nav_bar/fluid_bottom_nav_bar.dart';
 
 //Activar edición
-bool editItinerary = false;
 List<Actividad> newActividades = [];
 
 class DayScreen extends StatefulWidget {
   DayScreen(
-      {super.key, required this.id_itinerario, required this.actividades});
+      {super.key,
+      required this.id_itinerario,
+      required this.dia,
+      required this.actividades,
+      required this.fotos,
+      required this.onEdit,
+      required this.callback});
   final id_itinerario;
   final actividades;
+  final fotos;
+  final dia;
+  final callback;
+  late bool onEdit;
 
   @override
   State<DayScreen> createState() => _DayScreenState();
@@ -27,6 +37,9 @@ class DayScreen extends StatefulWidget {
 class _DayScreenState extends State<DayScreen> {
   List<Widget> widgetCardActivity = [];
   List actividades = [];
+  List fotos = [];
+  int cantidadActividadesServidor = 0;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -37,35 +50,72 @@ class _DayScreenState extends State<DayScreen> {
 
   Future<void> cargarActividades() async {
     widgetCardActivity = [];
-    
-    actividades = widget.actividades.split(",");
+    fotos = [];
 
-    for (int i = 0; i < actividades.length; i++) {
-      widgetCardActivity.add(
-        CardActivity(
-          text: actividades[i],
-          id: 1,
-        ),
-      );
+    if (widget.actividades != "") {
+      actividades = widget.actividades.split(",");
+      fotos = widget.fotos.split(",");
+
+      setState(() {
+        cantidadActividadesServidor = actividades.length - 1;
+
+        for (int i = 0; i < actividades.length; i++) {
+          widgetCardActivity.add(
+            CardActivity(
+              cantidadActividadesServidor: cantidadActividadesServidor,
+              photo: fotos[i],
+              text: actividades[i],
+              id: widgetCardActivity.length,
+            ),
+          );
+        }
+      });
+    } else {
+      setState(() {
+        editItinerary = true;
+      });
+      // widgetCardActivity.add(
+      //   CardActivity(
+      //     text: "Cuevas",
+      //     id: 0,
+      //   ),
+      // );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-        print("Length::::${actividades[1]}");
-
     return SafeArea(
-        child: GestureDetector(
-      onLongPress: () {
-        setState(() {
-          editItinerary = true;
-        });
-      },
+        child: Container(
       child: Column(
         children: [
-          Text("Dia ${widget.id_itinerario}"),
-          Column(
-            children: widgetCardActivity,
+          Text(
+            "Dia ${widget.dia}",
+            style: styleTitleHome,
+          ),
+          Form(
+            key: _formKey,
+            child: GestureDetector(
+                onLongPress: () {
+                  if (rol == "1") {
+                    setState(() {
+                      editItinerary = true;
+                    });
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color:
+                          Color.fromARGB(255, 240, 240, 240), // Color del borde
+                      width: 2.0, // Ancho del borde
+                    ),
+                    borderRadius: BorderRadius.circular(24.0),
+                  ),
+                  child: Column(
+                    children: widgetCardActivity,
+                  ),
+                )),
           ),
           // CardActivity(
           //   text: '',
@@ -82,14 +132,78 @@ class _DayScreenState extends State<DayScreen> {
 
   InkWell btnSave() {
     return InkWell(
-      onTap: () {
+      onTap: () async {
+        print("Le pico al boton aceptar");
+
+        // if (_formKey.currentState!.validate()) {
+        _formKey.currentState!.save();
+
         // cargarCompras();
+        if (!nuevoItinerario) {
+          if (newActividades.isNotEmpty) {
+            parametros = {
+              "opcion": "3.4",
+              "id_itinerario": widget.id_itinerario,
+              "actividades": newActividades
+            };
+            var response = await peticiones(parametros);
+            switch (response) {
+              case "exito":
+                if (mounted) {
+                  QuickAlertSuccess(
+                      context, "¡Se ha modificado la información con éxito!");
+
+                  widget.callback();
+                }
+                break;
+              case "error":
+                if (mounted) {
+                  Navigator.pop(context);
+                  QuickAlertError(
+                      context, "¡Ha ocurrido un error al hacer la petición!");
+                }
+                break;
+            }
+          }
+        } else {
+          if (newActividades.isNotEmpty) {
+            parametros = {
+              "opcion": "3.5",
+              "dia": widget.dia,
+              "actividades": newActividades
+            };
+
+            var response = await peticiones(parametros);
+
+            switch (response) {
+              case "exito":
+                if (mounted) {
+                  QuickAlertSuccess(
+                      context, "¡Se ha modificado la información con éxito!");
+
+                  widget.callback();
+                }
+                break;
+              case "error":
+                if (mounted) {
+                  Navigator.pop(context);
+                  QuickAlertError(
+                      context, "¡Ha ocurrido un error al hacer la petición!");
+                }
+                break;
+            }
+          }
+        }
+        // }
+
         setState(() {
+          newActividades = [];
           editItinerary = false;
         });
       },
       child: Container(
-        padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
+        constraints: BoxConstraints(minWidth: getProportionateScreenWidth(350)),
+        padding: const EdgeInsets.all(10),
         decoration: const BoxDecoration(
           // color: Color.fromARGB(255, 74, 179, 156),
           color: Colors.amber,
@@ -117,7 +231,7 @@ class _DayScreenState extends State<DayScreen> {
         const Divider(
           height: 50,
         ),
-        if (widgetCardActivity.length >= 2) ...[
+        if (widgetCardActivity.length > cantidadActividadesServidor) ...[
           IconButton(
             icon: const Icon(
               Icons.do_disturb_on_rounded,
@@ -131,7 +245,7 @@ class _DayScreenState extends State<DayScreen> {
                 // products.removeAt(products.length - 1);
                 widgetCardActivity.removeAt(widgetCardActivity.length - 1);
 
-                nuevoItinerario.removeAt(nuevoItinerario.length - 1);
+                // nuevoItinerario.removeAt(nuevoItinerario.length - 1);
               });
             },
           ),
@@ -145,7 +259,7 @@ class _DayScreenState extends State<DayScreen> {
           IconButton(
             icon: const Icon(
               Icons.add_circle,
-              color: Color.fromARGB(255, 81, 181, 15),
+              color: Color.fromARGB(255, 233, 229, 35),
               size: 35.0,
             ),
             highlightColor: const Color.fromARGB(255, 254, 254, 254),
@@ -155,12 +269,18 @@ class _DayScreenState extends State<DayScreen> {
                 // products.add(Productos(name: "", cantidad: "", unidad: ""));
                 widgetCardActivity.add(
                   CardActivity(
+                    cantidadActividadesServidor: cantidadActividadesServidor,
+                    photo: '',
                     text: '',
-                    id: 1,
+                    id: widgetCardActivity.length - 1,
                   ),
                 );
 
-                nuevoItinerario.add(Itinerario(id: index, id_actividad: index));
+                // nuevoItinerario.add(Itinerario(
+                //     id: indexDays, id_actividad: indexItinerary));
+                newActividades.add(Actividad(id_foto: null, actividad: ""));
+
+                // indexItinerary++;
               });
             },
           ),

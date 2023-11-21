@@ -1,4 +1,5 @@
 import 'package:experiencias_magicas/globals.dart';
+import 'package:experiencias_magicas/notifications/notification_screen.dart';
 import 'package:experiencias_magicas/screens/cart/cart_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -84,7 +85,7 @@ class _HomeHeaderState extends State<HomeHeader> {
               children: [
                 if (lblTotalNotifications >= 1) ...[
                   Positioned(
-                    right: getProportionateScreenWidth(-45),
+                    right: getProportionateScreenWidth(-169),
                     bottom: getProportionateScreenHeight(5),
                     child: SizedBox(
                       height: 25,
@@ -97,6 +98,7 @@ class _HomeHeaderState extends State<HomeHeader> {
                         child: Text(
                           lblTotalNotifications.toString(),
                           textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
                     ),
@@ -106,7 +108,9 @@ class _HomeHeaderState extends State<HomeHeader> {
             ),
           ),
           IconButton(
-            onPressed: () async {},
+            onPressed: () async {
+              _createOnPressed(context,NotificationScreen());
+            },
             icon: const Icon(
               Icons.notifications_active_sharp,
               color: Colors.white,
@@ -118,3 +122,9 @@ class _HomeHeaderState extends State<HomeHeader> {
     );
   }
 }
+
+  //Esta función vuelve a crear la ruta una vez se desheche
+  void _createOnPressed(BuildContext context, StatelessWidget route) {
+    Route materialRoute = MaterialPageRoute(builder: (context) => route);
+    Navigator.push(context, materialRoute);
+  }

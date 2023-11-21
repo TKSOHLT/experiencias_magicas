@@ -16,8 +16,9 @@ class RegisterScreen extends StatelessWidget {
           fit: BoxFit.cover,
         ),
         Scaffold(
-          body: Body(),
-        ),
+            body: SingleChildScrollView(
+          child: Body(),
+        )),
       ],
     );
   }

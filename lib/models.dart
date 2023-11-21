@@ -1,10 +1,10 @@
 import 'dart:io';
 
 class Actividad {
-  File? imagen;
+  String? id_foto;
   String? actividad;
-
-  Actividad({required this.imagen, required this.actividad});
+  
+  Actividad({required this.id_foto, required this.actividad});
 }
 
 class Itinerario {

@@ -1,4 +1,6 @@
 import 'package:experiencias_magicas/constants.dart';
+import 'package:experiencias_magicas/global_functions.dart';
+import 'package:experiencias_magicas/globals.dart';
 import 'package:experiencias_magicas/screens/home/components/body.dart';
 import 'package:experiencias_magicas/screens/paquetes/paquetes_screen.dart';
 import 'package:experiencias_magicas/size_config.dart';
@@ -42,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 // SizedBox(
                 //   width: getProportionateScreenWidth(0),
                 // ),
+                rol == "1" ?
                 FloatingActionButton.extended(
                   backgroundColor: Colors.green,
                   onPressed: () {
@@ -49,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                   label: const Text('Evento'),
                   icon: const Icon(Icons.add),
-                ),
+                ): Container()
                 // SizedBox(
                 //   width: getProportionateScreenWidth(59),
                 // ),

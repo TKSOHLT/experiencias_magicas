@@ -1,12 +1,17 @@
-
 import 'package:experiencias_magicas/components/custom_button.dart';
 import 'package:experiencias_magicas/components/custom_surfix_icon.dart';
 import 'package:experiencias_magicas/components/default_button.dart';
 import 'package:experiencias_magicas/components/form_error.dart';
 import 'package:experiencias_magicas/constants.dart';
+import 'package:experiencias_magicas/controller/controller_principal.dart';
+import 'package:experiencias_magicas/global_functions.dart';
+import 'package:experiencias_magicas/globals.dart';
+import 'package:experiencias_magicas/screens/login/login_screen.dart';
 import 'package:experiencias_magicas/screens/profile/components/profile_pic.dart';
 import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileForm extends StatefulWidget {
   const ProfileForm({
@@ -21,6 +26,7 @@ class ProfileForm extends StatefulWidget {
 
 class _ProfileFormState extends State<ProfileForm> {
   // ignore: non_constant_identifier_names
+  final GlobalKey<_ProfileFormState> key = GlobalKey<_ProfileFormState>();
 
   final _formKey = GlobalKey<FormState>();
   String? email;
@@ -29,13 +35,45 @@ class _ProfileFormState extends State<ProfileForm> {
   String? firstName;
   String? lastName;
   String? conform_password;
+  String? foto;
   bool isLoading = true;
   bool hidePass = true, hideConfirmPass = true;
   final List<String?> errors = [];
 
+  Future<void> cargarDatos() async {
+    print("Cargando datos usuario");
+    parametros = {"opcion": "1.1"};
+
+    var respuesta = await peticiones(parametros);
+
+    if (respuesta != "err_internet_conex") {
+      if (mounted) {
+        setState(() {
+          if (respuesta == 'user_not_found') {
+            isLoading = false;
+          } else {
+            foto = email = respuesta["photo"];
+            email = respuesta["email"];
+            password = respuesta["password"];
+            phone = respuesta["phone"];
+            firstName = respuesta["first_name"];
+            lastName = respuesta["last_name"];
+            isLoading = false;
+          }
+        });
+      }
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+
+    cargarDatos();
   }
 
   void addError({String? error}) {
@@ -56,11 +94,11 @@ class _ProfileFormState extends State<ProfileForm> {
 
   @override
   Widget build(BuildContext context) {
-    // if (isLoading) {
-    //   return const Center(
-    //     child: SpinKitChasingDots(color: Colors.white, size: 140),
-    //   );
-    // } else {
+    if (isLoading) {
+      return const Center(
+        child: SpinKitCubeGrid(color: Colors.white, size: 140),
+      );
+    } else {
       return Form(
           key: _formKey,
           // child: Padding(
@@ -84,14 +122,21 @@ class _ProfileFormState extends State<ProfileForm> {
 
             child: Column(
               children: [
-                ProfilePic(),
+                ProfilePic(
+                  foto: foto,
+                  callback: () {
+                    setState(() {
+                      cargarDatos();
+                      isLoading = true;
+                    });
+                  },
+                ),
                 buildFirstNameFormField(),
                 SizedBox(height: getProportionateScreenHeight(30)),
                 buildLastNameFormField(),
                 SizedBox(height: getProportionateScreenHeight(30)),
                 buildphoneFormField(),
                 SizedBox(height: getProportionateScreenHeight(30)),
-
                 buildEmailFormField(),
                 SizedBox(height: getProportionateScreenHeight(30)),
                 buildPasswordFormField(),
@@ -116,6 +161,37 @@ class _ProfileFormState extends State<ProfileForm> {
                           press: () async {
                             if (_formKey.currentState!.validate()) {
                               _formKey.currentState!.save();
+
+                              parametros = {
+                                "opcion": "1.2",
+                                "email": email,
+                                "password": password,
+                                "phone": phone,
+                                "firstName": firstName,
+                                "lastName": lastName
+                              };
+
+                              var respuesta = await peticiones(parametros);
+                              switch (respuesta) {
+                                case "exito":
+                                  if (mounted) {
+                                    QuickAlertSuccess(context,
+                                        "¡Se han modificado los datos correctamente!");
+
+                                    setState(() {
+                                      cargarDatos();
+                                      isLoading = true;
+                                    });
+                                  }
+                                  break;
+                                case "error":
+                                  if (mounted) {
+                                    Navigator.pop(context);
+                                    QuickAlertError(context,
+                                        "¡Ha ocurrido un error al hacer la petición!");
+                                  }
+                                  break;
+                              }
                             }
                           },
                         ),
@@ -123,12 +199,47 @@ class _ProfileFormState extends State<ProfileForm> {
                     )
                   ],
                 ),
+                SizedBox(
+                  height: getProportionateScreenHeight(15),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(children: [
+                      SizedBox(
+                        width: getProportionateScreenHeight(330),
+                        height: getProportionateScreenHeight(56),
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                            side: const BorderSide(
+                              color: Color.fromARGB(255, 232, 62,
+                                  54), // Cambia el color del borde según tus preferencias
+                              width:
+                                  1.0, // Ajusta el ancho del borde según tus preferencias
+                            ),
+                            backgroundColor:
+                                const Color.fromARGB(255, 232, 62, 54),
+                          ),
+                          onPressed: () => cerrarSesion(),
+                          child: Text(
+                            "Cerrar sesión",
+                            style: TextStyle(
+                              fontSize: getProportionateScreenWidth(18),
+                              color: const Color.fromARGB(255, 240, 240, 240),
+                            ),
+                          ),
+                        ),
+                      )
+                    ]),
+                  ],
+                ),
                 SizedBox(height: getProportionateScreenHeight(30)),
               ],
             ),
           ));
-    
-    // }
+    }
   }
 
   TextFormField buildConformPassFormField() {
@@ -315,5 +426,49 @@ class _ProfileFormState extends State<ProfileForm> {
         suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/User.svg"),
       ),
     );
+  }
+
+  dynamic cerrarSesion() {
+    return showDialog(
+        context: context,
+        builder: (buildcontext) {
+          return AlertDialog(
+            title: const Text("¿Desea cerrar sesión?",
+                style: TextStyle(color: Color.fromARGB(255, 218, 11, 11))),
+            content: const Text("La sesión se cerrará"),
+            actions: <Widget>[
+              TextButton(
+                child: const Text(
+                  "Cancelar",
+                  style: TextStyle(color: Color.fromARGB(255, 23, 21, 21)),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  "Cerrar sesión",
+                  style: TextStyle(color: Color.fromARGB(255, 218, 11, 11)),
+                ),
+                onPressed: () async {
+                  Route ruta =
+                      MaterialPageRoute(builder: (context) => LoginScreen());
+
+                  Navigator.pushAndRemoveUntil(
+                      context, ruta, (Route<dynamic> route) => false);
+
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  prefs.clear();
+
+                  // setState(() {
+                  //   isLoggedIn = false;
+                  // });
+                },
+              )
+            ],
+          );
+        });
   }
 }

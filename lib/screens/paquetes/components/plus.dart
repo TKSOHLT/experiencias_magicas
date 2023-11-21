@@ -1,3 +1,4 @@
+import 'package:experiencias_magicas/constants.dart';
 import 'package:experiencias_magicas/screens/paquetes/components/paquetes_form.dart';
 import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ class _PlusState extends State<Plus> {
         children: <Widget>[
           Column(
             children: <Widget>[
-              Text("Además: "),
+              Text("Además: ", style: styleEventLblForm,),
             ],
           ),
           SizedBox(
@@ -56,13 +57,6 @@ class _PlusState extends State<Plus> {
                 }
                 return null;
               },
-              // onSaved: (newValue) => asientos = newValue,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              // inputFormatters: <TextInputFormatter>[
-              //   FilteringTextInputFormatter.allow(
-              //       RegExp('[0-9.([0-9)?]')), // Limita a dígitos solamente
-              // ],
             ),
           )
         ],

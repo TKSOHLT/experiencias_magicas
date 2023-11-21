@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:experiencias_magicas/components/datepicker.dart';
 import 'package:experiencias_magicas/components/datepickerUsers.dart';
+import 'package:experiencias_magicas/constants.dart';
 import 'package:experiencias_magicas/controller/controller_principal.dart';
 import 'package:experiencias_magicas/globals.dart';
 import 'package:experiencias_magicas/size_config.dart';
@@ -9,11 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-String? userName;
-String? phone;
-String? email;
-String? password;
-bool hidePass = true;
+int cantidadPersonas = 0;
 
 class BuyHeader extends StatefulWidget {
   @override
@@ -55,7 +52,6 @@ class _BuyHeaderState extends State<BuyHeader> {
   }
 
   Future<void> cargarLugares() async {
-    
     parametros = {"opcion": "3.1"};
 
     var respuesta = await peticiones(parametros);
@@ -66,16 +62,13 @@ class _BuyHeaderState extends State<BuyHeader> {
           lugares = 0;
           // isLoading = false;
         } else {
-          for(int i=0; i<respuesta.length; i++) {
-            lugares +=  respuesta[i]['seats'];
+          for (int i = 0; i < respuesta.length; i++) {
+            lugares += respuesta[i]['seats'];
           }
           // isLoading = false;
         }
       });
-
-    } else {
-
-    }
+    } else {}
   }
 
   @override
@@ -92,7 +85,7 @@ class _BuyHeaderState extends State<BuyHeader> {
           buildPhoneFormField(),
           SizedBox(height: getProportionateScreenHeight(30)),
 
-          buildPasswordFormField(),
+          buildCantidadPersonas(),
           // SizedBox(height: getProportionateScreenHeight(30)),
         ],
       ),
@@ -108,7 +101,7 @@ class _BuyHeaderState extends State<BuyHeader> {
             Expanded(
                 child: Text(
               "Fechas disponibles",
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.center,style: styleBuyLabelsHeader,
             )),
             Expanded(child: DatePickerUsers())
           ],
@@ -125,7 +118,7 @@ class _BuyHeaderState extends State<BuyHeader> {
           children: [
             Expanded(
                 child:
-                    Text("Lugares disponibles", textAlign: TextAlign.center)),
+                    Text("Lugares disponibles", textAlign: TextAlign.center, style: styleBuyLabelsHeader,)),
             Expanded(
                 child: DecoratedBox(
                     decoration: BoxDecoration(
@@ -146,6 +139,7 @@ class _BuyHeaderState extends State<BuyHeader> {
                                       child: Text(
                                         '$lugares',
                                         textAlign: TextAlign.center,
+                                        style: styleBuyLugares
                                       )))
                             ]))))
           ],
@@ -154,7 +148,9 @@ class _BuyHeaderState extends State<BuyHeader> {
     );
   }
 
-  Column buildPasswordFormField() {
+  Column buildCantidadPersonas() {
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
     return Column(
       children: [
         Row(
@@ -162,7 +158,7 @@ class _BuyHeaderState extends State<BuyHeader> {
           children: [
             Expanded(
                 child: Text("¿Cuantas personas viajan?",
-                    textAlign: TextAlign.center)),
+                    textAlign: TextAlign.center, style: styleBuyLabelsHeader,)),
             Expanded(
                 child: DecoratedBox(
                     decoration: BoxDecoration(
@@ -170,32 +166,57 @@ class _BuyHeaderState extends State<BuyHeader> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Padding(
-                      padding: EdgeInsets.only(top: 6),
-                      child: TextField(
-                        decoration: const InputDecoration(
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            contentPadding: EdgeInsets.only(
-                                bottom: 5, top: 0, left: 10, right: 10),
-                            isDense: true,
-                            floatingLabelBehavior: FloatingLabelBehavior.never,
-                            labelStyle: TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 17.0,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            alignLabelWithHint: true,
-                            border: InputBorder.none),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly
-                        ], // Only numbers can be entered
-                      ),
-                    )))
+                        padding: EdgeInsets.only(top: 6),
+                        child: Form(
+                            key: _formKey,
+                            child: TextFormField(
+                              onChanged: (value) {
+                                if (value.isNotEmpty) {
+                                  cantidadPersonas = int.tryParse(value) ?? 0;
+                                  _formKey.currentState
+                                      ?.validate(); // Ejecuta la validación
+                                } else {
+                                  cantidadPersonas = 0;
+                                }
+                              },
+                              decoration: const InputDecoration(
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.transparent),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.transparent),
+                                ),
+                                contentPadding: EdgeInsets.only(
+                                    bottom: 5, top: 0, left: 10, right: 10),
+                                isDense: true,
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.never,
+                                labelStyle: TextStyle(
+                                  color: Color.fromARGB(255, 255, 255, 255),
+                                  fontSize: 17.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                alignLabelWithHint: true,
+                                border: InputBorder.none,
+                              ),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              validator: (value) {
+                                if (value != null &&
+                                    int.tryParse(value) != null) {
+                                  if (int.parse(value) > lugares.toInt()) {
+                                    return 'Cantidad de lugares no disponibles';
+                                  } else {
+                                    return null;
+                                  }
+                                }
+                                return null;
+                              },
+                            )))))
           ],
         )
       ],

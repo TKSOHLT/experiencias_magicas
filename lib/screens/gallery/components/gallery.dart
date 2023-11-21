@@ -89,7 +89,7 @@ class _GalleryState extends State<Gallery> {
                               height: getProportionateScreenHeight(30),
                             ),
                             GalleryImage(
-                              numOfShowImages: 6,
+                              numOfShowImages: 1,
                               imageUrls: const [
                                 "https://cosmosmagazine.com/wp-content/uploads/2020/02/191010_nature.jpg",
                                 "https://scx2.b-cdn.net/gfx/news/hires/2019/2-nature.jpg",

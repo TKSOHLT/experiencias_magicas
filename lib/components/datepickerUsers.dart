@@ -1,18 +1,17 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:experiencias_magicas/constants.dart';
 import 'package:experiencias_magicas/controller/controller_principal.dart';
 import 'package:experiencias_magicas/globals.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class DatePickerUsers extends StatefulWidget {
-
   @override
   // ignore: no_logic_in_create_state
   State<DatePickerUsers> createState() => _DatePickerState();
 }
 
 class _DatePickerState extends State<DatePickerUsers> {
-  
   List<DateTime?> _multiDatePickerValueWithDefaultValue = [
     // DateTime(today.year, today.month, 1),
     // DateTime(today.year, today.month, 5),
@@ -22,7 +21,7 @@ class _DatePickerState extends State<DatePickerUsers> {
   ];
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     cargarFechas();
   }
@@ -35,21 +34,21 @@ class _DatePickerState extends State<DatePickerUsers> {
     var respuesta = await peticiones(parametros);
 
     if (respuesta != "err_internet_conex") {
-      setState(() {
-        if (respuesta == 'empty') {
-          _multiDatePickerValueWithDefaultValue = [];
-          // isLoading = false;
-        } else {
-          for (int i = 0; i < respuesta.length; i++) {
-            _multiDatePickerValueWithDefaultValue.add(DateTime.parse(respuesta[i]));
+      if (mounted) {
+        setState(() {
+          if (respuesta == 'empty') {
+            _multiDatePickerValueWithDefaultValue = [];
+            // isLoading = false;
+          } else {
+            for (int i = 0; i < respuesta.length; i++) {
+              _multiDatePickerValueWithDefaultValue
+                  .add(DateTime.parse(respuesta[i]));
+            }
+            // isLoading = false;
           }
-          // isLoading = false;
-        }
-      });
-
-    } else {
-
-    }
+        });
+      }
+    } else {}
   }
 
   final config = CalendarDatePicker2Config(
@@ -119,7 +118,7 @@ class _DatePickerState extends State<DatePickerUsers> {
     );
     final config = CalendarDatePicker2WithActionButtonsConfig(
       //inhabilitar la selección
-      selectableDayPredicate:(day) => false,
+      selectableDayPredicate: (day) => false,
       //Parametros firstDate y lastDate limitan la selecciòn del calendario
       // firstDate: DateTime.now(),
       // lastDate: DateTime.now(),
@@ -265,13 +264,13 @@ class _DatePickerState extends State<DatePickerUsers> {
                     });
                   }
                 },
-                child: const Padding(
+                child: Padding(
                   padding: EdgeInsets.only(top: 0, left: 0),
                   // width: 200,
                   // height: 0,
                   child: Text(
                     'Ver fechas',
-                    style: TextStyle(fontSize: 20),
+                    style: styleBuyFecha,
                   ),
                 )),
           ),

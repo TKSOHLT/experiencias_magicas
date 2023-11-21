@@ -1,5 +1,8 @@
 import 'package:experiencias_magicas/components/shop_product.dart';
 import 'package:experiencias_magicas/constants.dart';
+import 'package:experiencias_magicas/controller/controller_principal.dart';
+import 'package:experiencias_magicas/global_functions.dart';
+import 'package:experiencias_magicas/globals.dart';
 import 'package:experiencias_magicas/screens/models/product.dart';
 import 'package:flutter/material.dart';
 
@@ -9,29 +12,41 @@ class ShopBottomSheet extends StatefulWidget {
 }
 
 class _ShopBottomSheetState extends State<ShopBottomSheet> {
-  List<Product> products = [
-    Product(
-        'assets/images/splash_1.jpeg',
-        'Boat roackerz 400 On-Ear Bluetooth Headphones',
-        'description',
-        45.3),
-    Product(
-        'assets/images/splash_1.jpeg',
-        'Boat roackerz 100 On-Ear Bluetooth Headphones',
-        'description',
-        22.3),
-    Product(
-        'assets/images/splash_1.jpeg',
-        'Boat roackerz 300 On-Ear Bluetooth Headphones',
-        'description',
-        58.3)
-  ];
-
   @override
   Widget build(BuildContext context) {
     Widget confirmButton = InkWell(
       onTap: () async {
         Navigator.of(context).pop();
+
+        parametros = {
+          "opcion": "4",
+          "id_paquete": products[0].id_paquete,
+          "id_usuario": "0",
+          "lugares": products[0].places.toString(),
+          "total": products[0].price.toString()
+        };
+
+        var respuesta = await peticiones(parametros);
+
+        switch (respuesta) {
+          case "exito":
+            if (mounted) {
+              QuickAlertSuccess(context,
+                  "¡Se generado la compra, espera el baucher en las notificaciones!");
+
+              setState(() {
+                products.remove(products[0]);
+              });
+            }
+            break;
+          case "error":
+            if (mounted) {
+              Navigator.pop(context);
+              QuickAlertError(
+                  context, "¡Ha ocurrido un error al hacer la petición!");
+            }
+            break;
+        }
         // Navigator.of(context)
         //     .push(MaterialPageRoute(builder: (_) => CheckOutPage()));
       },
@@ -43,7 +58,7 @@ class _ShopBottomSheetState extends State<ShopBottomSheet> {
                 ? 20
                 : MediaQuery.of(context).padding.bottom),
         child: Center(
-            child: new Text("Confirm",
+            child: new Text("Comprar",
                 style: const TextStyle(
                     color: const Color(0xfffefefe),
                     fontWeight: FontWeight.w600,
@@ -74,39 +89,29 @@ class _ShopBottomSheetState extends State<ShopBottomSheet> {
             Align(
               alignment: Alignment.topRight,
               child: IconButton(
-                icon: Image.asset(
-                  'assets/images/splash_3.jpeg',
-                  height: 24,
-                  width: 24.0,
-                  fit: BoxFit.cover,
+                icon: Icon(
+                  Icons.keyboard_arrow_down_sharp,
+                  color: Color.fromARGB(255, 48, 45, 45),
+                  size: 50.0,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pop(context);
+                },
                 iconSize: 48,
               ),
             ),
             SizedBox(
-              height: 300,
-              child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: products.length,
-                  itemBuilder: (_, index) {
-                    return Row(
-                      children: <Widget>[
-                        ShopProduct(products[index],onRemove: (){
+                height: 300,
+                child: products.isNotEmpty
+                    ? ShopProduct(
+                        products[0],
+                        onRemove: () {
                           setState(() {
-                            products.remove(products[index]);
+                            products.remove(products[0]);
                           });
-                        },),
-                        index == 4
-                            ? SizedBox()
-                            : Container(
-                                width: 2,
-                                height: 200,
-                                color: Color.fromRGBO(100, 100, 100, 0.1))
-                      ],
-                    );
-                  }),
-            ),
+                        },
+                      )
+                    : Container()),
             confirmButton
           ],
         ));

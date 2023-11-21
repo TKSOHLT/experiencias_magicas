@@ -1,4 +1,5 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:experiencias_magicas/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -57,16 +58,16 @@ class _DatePickerState extends State<DatePicker> {
           ? values
               .map((v) => v.toString().replaceAll('00:00:00.000', ''))
               .join(', ')
-          : 'null';
+          : '';
     } else if (datePickerType == CalendarDatePicker2Type.range) {
       if (values.isNotEmpty) {
         final startDate = values[0].toString().replaceAll('00:00:00.000', '');
         final endDate = values.length > 1
             ? values[1].toString().replaceAll('00:00:00.000', '')
-            : 'null';
-        valueText = '$startDate to $endDate';
+            : '';
+        valueText = '$startDate a $endDate';
       } else {
-        return 'null';
+        return '';
       }
     }
 
@@ -243,7 +244,7 @@ class _DatePickerState extends State<DatePicker> {
                       config.calendarType,
                       _dialogCalendarPickerValue,
                     )}',
-                    style: TextStyle(fontSize: 20),
+                    style: styleEventFecha,
                   ),
                 )),
           ),

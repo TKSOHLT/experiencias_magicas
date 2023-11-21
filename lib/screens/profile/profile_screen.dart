@@ -24,9 +24,10 @@ class ProfileScreen extends StatelessWidget {
                     SizedBox(height: getProportionateScreenHeight(10)),
 
                     Text(
-                      "Edite sus datos con precauciòn.",
+                      "Edite sus datos con precaución.",
                       // style: lblAddUser,
                       textAlign: TextAlign.center,
+                      style: styleProfileHeader,
                     ),
                     SizedBox(height: SizeConfig.screenHeight * 0.07),
                     ProfileForm(),

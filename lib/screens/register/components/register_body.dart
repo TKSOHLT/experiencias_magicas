@@ -18,7 +18,7 @@ class Body extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Container(
-          margin: EdgeInsets.only(top: 12.200 * 0.3),
+          margin: EdgeInsets.only(top: 12.200 * 8.5),
           //height: 500,
           padding: const EdgeInsets.only(
             top: 0,
@@ -36,8 +36,7 @@ class Body extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: getProportionateScreenWidth(1)),
-            child: SingleChildScrollView(
-              child: Column(
+            child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   SizedBox(height: SizeConfig.screenHeight * 0.04),
@@ -60,7 +59,6 @@ class Body extends StatelessWidget {
                   RegisterForm(),
                   SizedBox(height: SizeConfig.screenHeight * 0.02),
                 ],
-              ),
             ),
           ),
         )

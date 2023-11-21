@@ -5,17 +5,16 @@
 import 'dart:async';
 
 import 'package:experiencias_magicas/constants.dart';
+import 'package:experiencias_magicas/global_functions.dart';
+import 'package:experiencias_magicas/globals.dart';
 import 'package:experiencias_magicas/screens/buy/components/header.dart';
 import 'package:experiencias_magicas/screens/home/components/home_header.dart';
+import 'package:experiencias_magicas/screens/models/product.dart';
 import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/material.dart';
 
 class Paquetes extends StatefulWidget {
   const Paquetes({
-    required this.dias,
-    required this.plus,
-    required this.costo,
-    required this.titulo,
     required this.dias,
     required this.plus,
     required this.costo,
@@ -121,23 +120,22 @@ class _PaquetesState extends State<Paquetes> {
                     bottomRight: Radius.circular(40),
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30))),
-            width: 400.0,
+            width: getProportionateScreenWidth(350),
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                      padding: EdgeInsets.only(left: 10.0, right: 10),
+                      padding: EdgeInsets.only(left: 0.0, right: 0),
                       child: Column(children: [
                         SizedBox(
-                            width: SizeConfig.defaultSize,
+                            width: getProportionateScreenWidth(350),
                             child: DataTable(
-                              columns: const [
-                                DataColumn(label: Text('Plus')),
-                                DataColumn(label: Text('Contiene')),
-                                DataColumn(label: Text('Plus')),
-                                DataColumn(label: Text('Contiene')),
+                              
+                              columns: [
+                                DataColumn(label:  Expanded(child: Text('Plus', textAlign: TextAlign.center, style: styleDataHeader))),
+                                DataColumn(label: Expanded(child:Text('Contiene', textAlign: TextAlign.center, style: styleDataHeader))),
                               ],
                               rows: List<DataRow>.generate((lengthDias) + (lengthPlus), (index) {
 
@@ -147,28 +145,31 @@ class _PaquetesState extends State<Paquetes> {
                                     try{
                                       texto = widget.plus[invertIndex];
                                       invertIndex++;
-                                    }catch(e){}
+                                    }catch(e){
+                                      print(e);
+                                    }
                                     
                                   }
 
                                 return DataRow(cells: <DataCell>[
-                                  DataCell(Container(
-                                      constraints: BoxConstraints(
-                                          maxWidth:
-                                              getProportionateScreenWidth(70)),
+                                  DataCell(Center(
+                                      // constraints: BoxConstraints(
+                                      //     maxWidth:
+                                      //         getProportionateScreenWidth(70)),
                                       child: Text(
-                                         texto
+                                         texto,
+                                         style: styleDataRow,
                                       ))),
-                                  DataCell(Container(
-                                      constraints: BoxConstraints(
-                                          maxWidth:
-                                              getProportionateScreenWidth(70)),
-                                      child: const Icon(Icons.verified))),
+                                  const DataCell(Center(
+                                      // constraints: BoxConstraints(
+                                      //     maxWidth:
+                                      //         getProportionateScreenWidth(70)),
+                                      child: Icon(Icons.sentiment_very_satisfied_outlined, color: kPrimaryColor,))),
                                 ]);
                               }),
                               columnSpacing: BorderSide.strokeAlignCenter,
                             )),
-                            Text("Costo: ${widget.costo}")
+                            Text("A solo: \$${widget.costo}", style: styleBuyCosto)
                       ])),
                   btnBuy(),
                 ]))
@@ -179,21 +180,30 @@ class _PaquetesState extends State<Paquetes> {
   InkWell btnBuy() {
     return InkWell(
       onTap: () {
-        // cargarCompras();
-        Navigator.pop(context);
+        if(products.isEmpty){
+          products.add(Product('assets/images/splash_1.jpeg', "Paquete ${widget.titulo}", "Viajan $cantidadPersonas personas", widget.costo * cantidadPersonas, cantidadPersonas, 1));
+        }else{
+          products[0].image = 'assets/images/splash_1.jpeg';
+          products[0].name = "Paquete ${widget.titulo}";
+          products[0].description = "Viajan $cantidadPersonas personas";
+          products[0].price = widget.costo * cantidadPersonas;
+          products[0].places = cantidadPersonas;
+          products[0].id_paquete = 1;
+        }
+        QuickAlertSuccess(context, "¡Se ha agregado al carrito!");
       },
       child: Container(
         padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
         decoration: const BoxDecoration(
           // color: Color.fromARGB(255, 74, 179, 156),
-          color: Colors.amber,
+          color: kPrimaryColor,
           borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(32.0),
               bottomRight: Radius.circular(32.0)),
         ),
-        child: const Text(
-          "Aceptar",
-          // style: lblBtnFiltro,
+        child: Text(
+          "¡Agregar al carrito!",
+          style: styleBtnBuy,
           textAlign: TextAlign.center,
         ),
       ),

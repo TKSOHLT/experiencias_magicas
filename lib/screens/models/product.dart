@@ -2,7 +2,9 @@ class Product{
   String image;
   String name;
   String description;
-  double price;
+  num price;
+  num places;
+  num id_paquete;
 
-  Product(this.image, this.name, this.description, this.price);
+  Product(this.image, this.name, this.description, this.price, this.places, this.id_paquete);
 }

@@ -5,6 +5,7 @@ import 'package:experiencias_magicas/components/datepicker.dart';
 import 'package:experiencias_magicas/components/form_error.dart';
 import 'package:experiencias_magicas/constants.dart';
 import 'package:experiencias_magicas/controller/controller_principal.dart';
+import 'package:experiencias_magicas/global_functions.dart';
 import 'package:experiencias_magicas/globals.dart';
 import 'package:experiencias_magicas/screens/paquetes/components/dias.dart';
 import 'package:experiencias_magicas/screens/paquetes/components/plus.dart';
@@ -42,12 +43,42 @@ class _PaquetesFormState extends State<PaquetesForm> {
 
   //WidgetList plus
   List<Widget> widgetPlus = [];
+  //Widget dias
+  List<Widget> widgetDias = [];
+
+  Future<void> cargarDias() async {
+    widgetDias = [];
+
+    parametros = {"opcion": "3.8"};
+
+    var respuesta = await peticiones(parametros);
+    print(respuesta);
+
+    if (respuesta != "err_internet_conex") {
+      setState(() {
+        if (respuesta == 'empty') {
+          widgetDias = [];
+          // isLoading = false;
+        } else {
+          for (int i = 0; i < respuesta.length; i++) {
+            widgetDias.add(
+              Dias(
+                noDia: respuesta[i]['day'].toString(),
+              ),
+            );
+          }
+          // isLoading = false;
+        }
+      });
+    } else {}
+  }
+
   //listener para escuchar el cambio en los campos de entrada de montos
   @override
   void initState() {
     super.initState();
 
-    //Eliminar==================================
+    cargarDias();
     widgetPlus.add(Plus());
   }
 
@@ -132,9 +163,12 @@ class _PaquetesFormState extends State<PaquetesForm> {
                   fechaInicio(),
                   costoPaquete(),
                   asientosPaquete(),
-                  Text("Contiene"),
-                  Dias(
-                    noDia: '1',
+                  SizedBox(
+                    height: getProportionateScreenHeight(10),
+                  ),
+                  Text("Contiene", style: styleEventLblHeader),
+                  Column(
+                    children: widgetDias,
                   ),
                   Column(
                     children: widgetPlus,
@@ -167,8 +201,6 @@ class _PaquetesFormState extends State<PaquetesForm> {
                     _formKey.currentState!.save();
                     // plusFormKey.currentState!.save();
 
-                    print("$dias, $fechas, $plus, $costo");
-
                     //============== Función para mostrar dialogo loader ==============//
                     // var loader = true;
                     // if (loader) {
@@ -198,9 +230,30 @@ class _PaquetesFormState extends State<PaquetesForm> {
                       "actividades": plus,
                       "costo": costo
                     };
+
                     var response = await peticiones(parametros);
 
-                    print(response);
+                    switch (response) {
+                      case "exito":
+                        if (mounted) {
+                          Navigator.pop(context);
+                          QuickAlertSuccess(
+                              context, "¡Se ha generado el evento!");
+                        }
+                        break;
+                      case "error":
+                        if (mounted) {
+                          QuickAlertError(context,
+                              "¡Ha ocurrido un error al hacer la petición!");
+                        }
+                        break;
+                      default:
+                        if (mounted) {
+                          QuickAlertWarning(context,
+                              "¡Verifique su conexión a internet!");
+                        }
+                        break;
+                    }
                   }
                 })
           ]),
@@ -217,7 +270,10 @@ class _PaquetesFormState extends State<PaquetesForm> {
         children: <Widget>[
           Column(
             children: <Widget>[
-              Text("Fechas: ", style: lblStyleColumnForm),
+              Text(
+                "Fechas: ",
+                style: styleEventLblForm,
+              ),
             ],
           ),
           SizedBox(
@@ -228,8 +284,6 @@ class _PaquetesFormState extends State<PaquetesForm> {
                   setState(() {
                     fechas = newValue;
                   });
-                  print(
-                      "Las fechas son las siguienteees:::::::::::::: $fechas");
                 },
               ))
         ],
@@ -245,7 +299,10 @@ class _PaquetesFormState extends State<PaquetesForm> {
         children: <Widget>[
           Column(
             children: <Widget>[
-              Text("Fólio: "),
+              Text(
+                "Fólio: ",
+                style: styleEventLblForm,
+              ),
             ],
           ),
           SizedBox(
@@ -280,7 +337,10 @@ class _PaquetesFormState extends State<PaquetesForm> {
         children: <Widget>[
           Column(
             children: <Widget>[
-              Text("Costo del paquete: ", style: lblStyleColumnForm),
+              Text(
+                "Costo del paquete: ",
+                style: styleEventLblForm,
+              ),
             ],
           ),
           SizedBox(
@@ -326,7 +386,7 @@ class _PaquetesFormState extends State<PaquetesForm> {
         children: <Widget>[
           Column(
             children: <Widget>[
-              Text("Lugares disponibles: ", style: lblStyleColumnForm),
+              Text("Lugares disponibles: ", style: styleEventLblForm),
             ],
           ),
           SizedBox(

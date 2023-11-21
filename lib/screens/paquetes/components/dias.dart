@@ -1,3 +1,4 @@
+import 'package:experiencias_magicas/constants.dart';
 import 'package:experiencias_magicas/screens/paquetes/components/paquetes_form.dart';
 import 'package:experiencias_magicas/size_config.dart';
 import 'package:flutter/material.dart';
@@ -17,9 +18,7 @@ class _DiasState extends State<Dias> {
     return Form(
       child: Column(
         children: [
-
           widgetDia(),
-
           SizedBox(
             height: getProportionateScreenHeight(10),
           )
@@ -36,12 +35,29 @@ class _DiasState extends State<Dias> {
         children: <Widget>[
           Column(
             children: <Widget>[
-              Text("Día ${widget.noDia}"),
+              Text(
+                "Día ${widget.noDia}",
+                style: styleEventLblForm,
+              ),
             ],
           ),
           SizedBox(
-              height: getProportionateScreenHeight(35),
-              width: getProportionateScreenWidth(120),
+            height: getProportionateScreenHeight(35),
+            width: getProportionateScreenWidth(120),
+            child: Container(
+              constraints: BoxConstraints(maxHeight: getProportionateScreenHeight(10), maxWidth: getProportionateScreenWidth(10)),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color.fromARGB(0, 51, 102, 255),
+                    Color.fromARGB(0, 0, 204, 255)
+                  ], // Cambia los colores según tus preferencias
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(
+                    8.0), // Ajusta el radio según tus necesidades
+              ),
               child: Checkbox(
                 checkColor: Colors.white,
                 fillColor: MaterialStateProperty.resolveWith(getColor),
@@ -49,13 +65,14 @@ class _DiasState extends State<Dias> {
                 onChanged: (bool? value) {
                   setState(() {
                     isChecked = value!;
-                    value ? dias?.add(widget.noDia) : dias?.remove(widget.noDia);
-                    print(value);
-                    print(dias);
-
+                    value
+                        ? dias?.add(widget.noDia)
+                        : dias?.remove(widget.noDia);
                   });
                 },
-              ))
+              ),
+            ),
+          )
         ],
       ),
     );
