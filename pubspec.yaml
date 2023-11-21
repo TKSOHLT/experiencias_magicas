@@ -48,7 +48,7 @@ dependencies:
   flutter_image_compress: ^2.1.0
   quickalert: ^1.0.2
   url_launcher: ^6.2.1
-  dio: ^4.0.0
+  dio: ^5.0.0
   firebase_core: ^2.22.0
   firebase_messaging: ^14.7.4
   flutter_inapp_notifications: ^1.0.0
